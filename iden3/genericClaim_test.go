@@ -12,7 +12,7 @@ import (
 func Test_GenericClaim(t *testing.T) {
 
 	// set claim expiration date
-	time := time.Date(1361, 3, 22, 0, 44, 48, 0, time.UTC)
+	expireTime := time.Date(1361, 3, 22, 0, 44, 48, 0, time.UTC)
 
 	// set schema
 	ageSchema, _ := core.NewSchemaHashFromHex("2e2d1c11ad3e500de68d7ce16a0a559e")
@@ -28,7 +28,7 @@ func Test_GenericClaim(t *testing.T) {
 	id, _ := core.IDFromString("113TCVw5KMeMp99Qdvub9Mssfz7krL9jWNvbdB7Fd2")
 
 	// create claim
-	claim, _ := core.NewClaim(ageSchema, core.WithExpirationDate(time),
+	claim, _ := core.NewClaim(ageSchema, core.WithExpirationDate(expireTime),
 		core.WithRevocationNonce(revocationNonce), core.WithIndexID(id),
 		core.WithIndexDataInts(birthday, documentType))
 
