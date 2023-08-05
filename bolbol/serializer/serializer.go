@@ -29,7 +29,7 @@ func NewArticle(articles repository.ArticleRepository, summaryWordsLimit int) *A
 func (a *Article) ByID(ctx context.Context, id uint64) (SimpleSummaryArticle, error) {
 	article, err := a.articles.ByID(ctx, int(id))
 	if err != nil {
-		return SimpleSummaryArticle{}, fmt.Errorf("error while retrieving a single article by id: %w", err)
+		return SimpleSummaryArticle{}, repository.ErrNotFound
 	}
 	return SimpleSummaryArticle{
 		ID:      article.ID,
