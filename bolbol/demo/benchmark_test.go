@@ -1,21 +1,21 @@
-package bolbol
+package demo
 
 import (
 	"context"
-	"own/example/bolbol/repository"
-	"own/example/bolbol/serializer"
+	repository2 "own/example/bolbol/demo/repository"
+	serializer2 "own/example/bolbol/demo/serializer"
 	"testing"
 )
 
 func BenchmarkArticle(b *testing.B) {
-	ma := &mockArticle{items: map[int]repository.Article{
+	ma := &mockArticle{items: map[int]repository2.Article{
 		1: {
 			ID:      1,
 			Title:   "Title#1",
 			Content: "content of the first article.",
 		},
 	}}
-	a := serializer.NewArticle(ma, 3)
+	a := serializer2.NewArticle(ma, 3)
 
 	for i := 0; i < b.N; i++ {
 		a.ByID(context.Background(), 10)

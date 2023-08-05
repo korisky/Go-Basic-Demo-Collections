@@ -3,7 +3,7 @@ package serializer
 import (
 	"context"
 	"fmt"
-	"own/example/bolbol/repository"
+	repository2 "own/example/bolbol/demo/repository"
 	"strings"
 )
 
@@ -16,12 +16,12 @@ type SimpleSummaryArticle struct {
 }
 
 type Article struct {
-	articles          repository.ArticleRepository
+	articles          repository2.ArticleRepository
 	summaryWordsLimit int
 }
 
 // NewArticle is for create serializer struct of Article
-func NewArticle(articles repository.ArticleRepository, summaryWordsLimit int) *Article {
+func NewArticle(articles repository2.ArticleRepository, summaryWordsLimit int) *Article {
 	return &Article{articles: articles, summaryWordsLimit: summaryWordsLimit}
 }
 
@@ -29,7 +29,7 @@ func NewArticle(articles repository.ArticleRepository, summaryWordsLimit int) *A
 func (a *Article) ByID(ctx context.Context, id uint64) (SimpleSummaryArticle, error) {
 	article, err := a.articles.ByID(ctx, int(id))
 	if err != nil {
-		return SimpleSummaryArticle{}, repository.ErrNotFound
+		return SimpleSummaryArticle{}, repository2.ErrNotFound
 	}
 	return SimpleSummaryArticle{
 		ID:      article.ID,
