@@ -1,4 +1,4 @@
-package babyjub
+package idenDemo
 
 import (
 	"fmt"
