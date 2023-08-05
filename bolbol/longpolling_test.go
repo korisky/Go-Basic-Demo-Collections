@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+/*
+	https://medium.com/@mhrlife/building-a-real-time-notification-service-with-golang-golang-basics-92e0dcb48d4d
+*/
+
 func (s *Server) listen(c echo.Context) error {
 	clientId, _ := strconv.Atoi(c.Param("id"))
 	notifications, err := s.bolbol.GetNotifications(c.Request().Context(), clientId)
