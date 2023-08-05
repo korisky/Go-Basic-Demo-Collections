@@ -1,1 +1,30 @@
-package Go_Basic_Demo_Collections
+package main
+
+import (
+	"github.com/livefir/fir"
+	"net/http"
+	"sync/atomic"
+)
+
+func index() fir.RouteOptions {
+	var count int32
+	return fir.RouteOptions{
+		fir.ID("counter"),
+		fir.Content("counter.html"),
+		fir.OnLoad(func(ctx fir.RouteContext) error {
+			return ctx.KV("count", atomic.LoadInt32(&count))
+		}),
+		fir.OnEvent("inc", func(ctx fir.RouteContext) error {
+			return ctx.KV("count", atomic.AddInt32(&count, 1))
+		}),
+		fir.OnEvent("dec", func(ctx fir.RouteContext) error {
+			return ctx.KV("count", atomic.AddInt32(&count, -1))
+		}),
+	}
+}
+
+func main() {
+	controller := fir.NewController("counter_app", fir.DevelopmentMode(true))
+	http.Handle("/", controller.RouteFunc(index))
+	http.ListenAndServe(":9867", nil)
+}
