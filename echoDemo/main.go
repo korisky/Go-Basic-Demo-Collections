@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"log"
 	"net/http"
 )
@@ -15,14 +16,27 @@ func main() {
 	e.GET("/cats/:data", GetCats)
 	e.POST("/cats", AddCat)
 
+	// add middle ware
+	e.Use(middleware.Logger())
+
 	e.Logger.Fatal(e.Start(":8000"))
 }
 
-// GetCats is Get api, http://localhost:8000/cats?name=a&type=fluffy
+// GetCats is Get api, curl -X GET 'http://127.0.0.1:8000/cats/json?name=tom&type=fluffy'
 func GetCats(c echo.Context) error {
 	catName := c.QueryParam("name")
 	catType := c.QueryParam("type")
-	return c.String(http.StatusOK, fmt.Sprintf("your cat name is: %s\nand cat type is: %s\n", catName, catType))
+	dataType := c.Param("data")
+	if dataType == "string" {
+		return c.String(http.StatusOK, fmt.Sprintf("your cat name is : %s\nand cat type is : %s\n", catName, catType))
+	} else if dataType == "json" {
+		return c.JSON(http.StatusOK, map[string]string{
+			"name": catName,
+			"type": catType})
+	} else {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Please specify the data type as Sting or JSON"})
+	}
 }
 
 func AddCat(c echo.Context) error {
