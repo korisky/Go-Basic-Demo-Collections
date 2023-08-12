@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// In golang, using a slice as buffer -> better then
 func Test_GCStuff(t *testing.T) {
 
 	s := make([]string, 0, 100000)
@@ -29,6 +30,8 @@ func Test_GCStuff(t *testing.T) {
 	fmt.Println("NumGC: ", m.NumGC)
 	fmt.Println("-----------")
 
+	// when a variable is no longer need to be used,
+	// set it to nil allows the gc to reclaim the memory from it
 	s = nil
 	runtime.GC()
 	runtime.ReadMemStats(&m)
