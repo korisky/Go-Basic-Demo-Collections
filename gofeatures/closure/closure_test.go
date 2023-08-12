@@ -10,6 +10,8 @@ import (
 // golang's closure can be used with much more flexibility
 func Test_Closure(t *testing.T) {
 	x := 10
+
+	// -> it might need to promotes local variable x from stack to heap -> when it met it in closure
 	increment := func() int {
 		x++
 		return x
