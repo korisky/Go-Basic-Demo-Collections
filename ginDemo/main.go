@@ -9,11 +9,13 @@ func main() {
 
 	r := gin.New()
 
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello From Gin",
-		})
-	})
+	r.GET("/", helloWorldGinHandler)
 
 	r.Run()
+}
+
+func helloWorldGinHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Hello From Gin",
+	})
 }
