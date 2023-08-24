@@ -1,6 +1,7 @@
 package todo
 
 import (
+	"github.com/labstack/echo/v4"
 	"strconv"
 	"sync"
 	"time"
@@ -49,4 +50,33 @@ func (tm *TodoManager) Create(request CreateTodoRequest) Todo {
 	// append to collection
 	tm.todos = append(tm.todos, newTodo)
 	return newTodo
+}
+
+func (tm *TodoManager) Complete(ID string) error {
+	tm.m.Lock()
+	defer tm.m.Unlock()
+
+	var todo *Todo
+	var idx = -1
+
+	for i, v := range tm.todos {
+		if v.ID == ID {
+			idx = i
+			todo = &v
+		}
+	}
+
+	if todo == nil {
+		return echo.ErrNotFound
+	}
+
+	if todo.IsComplete {
+		err := echo.ErrBadRequest
+		err.Message = "todo is already completed"
+		return err
+	}
+
+	// update todo
+	tm.todos[idx].IsComplete = true
+	return nil
 }

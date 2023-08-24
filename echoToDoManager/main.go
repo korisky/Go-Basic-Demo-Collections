@@ -36,6 +36,7 @@ func main() {
 		}
 	})
 
+	// create todo
 	authenticatedGroup.POST("/create", func(c echo.Context) error {
 		// bind request's param
 		reqBody := todo.CreateTodoRequest{}
@@ -47,6 +48,19 @@ func main() {
 		newTodo := tm.Create(reqBody)
 
 		return c.JSON(http.StatusOK, newTodo)
+	})
+
+	// finish todo
+	authenticatedGroup.PATCH("/:id/complete", func(c echo.Context) error {
+		id := c.Param("id") // getting the path param
+
+		err := tm.Complete(id)
+		if err != nil {
+			c.Error(err)
+			return err
+		}
+
+		return nil
 	})
 
 	e.Start(":8888")
