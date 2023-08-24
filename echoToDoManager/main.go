@@ -22,7 +22,7 @@ func main() {
 	})
 
 	// Echo Groups -> group together routes -> that require authentication and add custom middleware check stuff
-	e.Group("/todos", func(next echo.HandlerFunc) echo.HandlerFunc {
+	authenticatedGroup := e.Group("/todos", func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// check for auth token
 			authorization := c.Request().Header.Get("authorization")
@@ -34,6 +34,19 @@ func main() {
 			next(c)
 			return nil
 		}
+	})
+
+	authenticatedGroup.POST("/create", func(c echo.Context) error {
+		// bind request's param
+		reqBody := todo.CreateTodoRequest{}
+		err := c.Bind(&reqBody)
+		if err != nil {
+			return err
+		}
+
+		newTodo := tm.Create(reqBody)
+
+		return c.JSON(http.StatusOK, newTodo)
 	})
 
 	e.Start(":8888")
