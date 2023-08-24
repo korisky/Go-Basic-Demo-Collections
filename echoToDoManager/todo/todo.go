@@ -1,4 +1,4 @@
-package echoToDoManager
+package todo
 
 import "sync"
 
@@ -19,4 +19,8 @@ func NewTodoManager() TodoManager {
 		todos: make([]Todo, 0),
 		m:     sync.Mutex{},
 	}
+}
+
+func (tm *TodoManager) GetAll() []Todo {
+	return tm.todos
 }
