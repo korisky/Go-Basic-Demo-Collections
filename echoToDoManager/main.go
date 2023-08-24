@@ -21,5 +21,20 @@ func main() {
 		return c.JSON(http.StatusOK, todos) // really simple json back stuff
 	})
 
+	// Echo Groups -> group together routes -> that require authentication and add custom middleware check stuff
+	e.Group("/todos", func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// check for auth token
+			authorization := c.Request().Header.Get("authorization")
+			if authorization != "auth-token" {
+				c.Error(echo.ErrUnauthorized)
+				return nil
+			}
+			// token exists
+			next(c)
+			return nil
+		}
+	})
+
 	e.Start(":8888")
 }
