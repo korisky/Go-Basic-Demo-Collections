@@ -1,19 +1,25 @@
-package server
+package main
 
 import (
 	"context"
 	"errors"
 	go_grpc_crud "example/go-grpc-crud-api/proto"
+	"flag"
 	"fmt"
 	"github.com/google/uuid"
+	"google.golang.org/grpc"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
+	"net"
+	"time"
 )
 
 type GRPCServer struct {
 	go_grpc_crud.UnimplementedMovieServiceServer
 }
 
-func (*GRPCServer) createMovie(DB *gorm.DB, ctx context.Context, req *go_grpc_crud.CreateMovieRequest) (*go_grpc_crud.CreateMovieResponse, error) {
+func (*GRPCServer) createMovie(ctx context.Context, req *go_grpc_crud.CreateMovieRequest) (*go_grpc_crud.CreateMovieResponse, error) {
 	fmt.Println("Create Movie")
 	movie := req.GetMovie()
 	movie.Id = uuid.New().String()
@@ -41,7 +47,7 @@ func (*GRPCServer) createMovie(DB *gorm.DB, ctx context.Context, req *go_grpc_cr
 
 }
 
-func (*GRPCServer) GetMovie(DB *gorm.DB, ctx context.Context, req *go_grpc_crud.ReadMovieRequest) (*go_grpc_crud.ReadMovieResponse, error) {
+func (*GRPCServer) GetMovie(ctx context.Context, req *go_grpc_crud.ReadMovieRequest) (*go_grpc_crud.ReadMovieResponse, error) {
 	fmt.Println("Read Movie", req.GetId())
 
 	var movie Movie
@@ -59,7 +65,7 @@ func (*GRPCServer) GetMovie(DB *gorm.DB, ctx context.Context, req *go_grpc_crud.
 	}, nil
 }
 
-func (*GRPCServer) GetMovies(DB *gorm.DB, ctx context.Context, req *go_grpc_crud.ReadMoviesRequest) (*go_grpc_crud.ReadMoviesResponse, error) {
+func (*GRPCServer) GetMovies(ctx context.Context, req *go_grpc_crud.ReadMoviesRequest) (*go_grpc_crud.ReadMoviesResponse, error) {
 	fmt.Println("Read Movies")
 
 	var movies []*go_grpc_crud.Movie
@@ -73,7 +79,7 @@ func (*GRPCServer) GetMovies(DB *gorm.DB, ctx context.Context, req *go_grpc_crud
 	}, nil
 }
 
-func (*GRPCServer) UpdateMovie(DB *gorm.DB, ctx context.Context, req *go_grpc_crud.UpdateMovieRequest) (*go_grpc_crud.UpdateMovieResponse, error) {
+func (*GRPCServer) UpdateMovie(ctx context.Context, req *go_grpc_crud.UpdateMovieRequest) (*go_grpc_crud.UpdateMovieResponse, error) {
 	fmt.Println("Update Movie")
 
 	var movie Movie
@@ -96,7 +102,7 @@ func (*GRPCServer) UpdateMovie(DB *gorm.DB, ctx context.Context, req *go_grpc_cr
 	}, nil
 }
 
-func (*GRPCServer) DeleteMovie(DB *gorm.DB, ctx context.Context, req *go_grpc_crud.DeleteMovieRequest) (*go_grpc_crud.DeleteMovieResponse, error) {
+func (*GRPCServer) DeleteMovie(ctx context.Context, req *go_grpc_crud.DeleteMovieRequest) (*go_grpc_crud.DeleteMovieResponse, error) {
 	fmt.Println("Delete Movie")
 
 	var movie Movie
@@ -109,4 +115,65 @@ func (*GRPCServer) DeleteMovie(DB *gorm.DB, ctx context.Context, req *go_grpc_cr
 	return &go_grpc_crud.DeleteMovieResponse{
 		Success: true,
 	}, nil
+}
+
+func init() {
+	DatabaseConnection()
+}
+
+var DB *gorm.DB
+var err error
+
+type Movie struct {
+	ID        string `gorm:"primarykey"`
+	Title     string
+	Genre     string
+	CreatedAt time.Time `gorm:"autoCreateTime:false"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime:false"`
+}
+
+func DatabaseConnection() {
+	host := "localhost"
+	port := "5432"
+	dbName := "postgres"
+	dbUser := "postgres"
+	password := "pass1234"
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		host,
+		port,
+		dbUser,
+		dbName,
+		password,
+	)
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	_ = DB.AutoMigrate(Movie{})
+	if err != nil {
+		log.Fatal("Error connecting to the database...", err)
+	}
+	fmt.Println("Database connection successful...")
+}
+
+var (
+	port = flag.Int("port", 50051, "gRPC server port")
+)
+
+func main() {
+
+	fmt.Println("gRPC server running ...")
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	s := grpc.NewServer()
+
+	go_grpc_crud.RegisterMovieServiceServer(s, &GRPCServer{})
+
+	log.Printf("Server listening at %v", lis.Addr())
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve : %v", err)
+	}
 }
