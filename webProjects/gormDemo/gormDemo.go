@@ -42,4 +42,14 @@ func main() {
 	// auto migrate (create tables & missing stuff, would not delete unused columns)
 	_ = db.AutoMigrate(&User{})
 
+	// CRUD
+	user := User{
+		Name:    "Tom",
+		Address: "0x1234fa23",
+	}
+
+	// the BeforeCreate would be executed before the insertion
+	result := db.Create(&user)
+	fmt.Println(result.RowsAffected) // the result is the db execute resul
+
 }
