@@ -31,6 +31,7 @@ func (u *User) BeforeUpdate(tx *gorm.DB) (err error) {
 	return
 }
 
+// for golang backend database query -> use 'single flight' pkg -> to group the multi request together -> only execute one db query
 func main() {
 
 	// mysql set up for gorm
