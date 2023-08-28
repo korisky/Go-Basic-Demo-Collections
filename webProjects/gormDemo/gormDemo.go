@@ -23,6 +23,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
+// BeforeUpdate executed before update -> there are several supports for the hooks
 func (u *User) BeforeUpdate(tx *gorm.DB) (err error) {
 	if strings.Contains(u.Name, "Tom") {
 		err = errors.New("Tom could not be updated")
@@ -50,6 +51,16 @@ func main() {
 
 	// the BeforeCreate would be executed before the insertion
 	result := db.Create(&user)
-	fmt.Println(result.RowsAffected) // the result is the db execute resul
+	fmt.Println(result.RowsAffected) // the result is the db execute result
+
+	// gorm support batch insert
+	var users = []User{{Name: "Tom2", Address: "0x1234"}, {Name: "Tom3", Address: "0x1234"}}
+	db.CreateInBatches(users, 100)
+
+	// select supports
+	db.First(&user, 10)                                // primary key is integer
+	db.First(&user, "id = ?", "123-23adafga")          // primary key is string
+	db.Find(&users, []int{1, 2, 3})                    // select in
+	db.Find(&users).Where("name = ?", "Tom").Limit(10) // find all records with limits
 
 }
