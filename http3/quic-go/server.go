@@ -1,19 +1,31 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
+	"github.com/quic-go/quic-go"
+	"io"
 	"log"
 	"math/big"
+	"net/http"
 )
 
 func main() {
 
-	//quic.ListenAddr("localhost:8998", )
+}
 
+type loggingWriter struct {
+	io.Writer
+}
+
+func (w loggingWriter) Write(b []byte) (int, error) {
+	fmt.Println("Server: Got: '%s'\n", string(b))
+	return w.Writer.Write(b)
 }
 
 // generateTLSConfig -> generate QUIC needed tls config
