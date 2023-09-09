@@ -12,6 +12,8 @@ import (
 // canceling all other ongoing requests.
 func main() {
 	// create a context with timeout func
+	// context.Background() is a pure empty context
+	// context.WithTimeout & context.WithDeadline() -> more configurable
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFunc()
 	urls := []string{
