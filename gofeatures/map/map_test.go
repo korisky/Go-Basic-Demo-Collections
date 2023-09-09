@@ -3,6 +3,7 @@ package test_map
 import (
 	"fmt"
 	"maps"
+	"strings"
 	"testing"
 )
 
@@ -25,4 +26,16 @@ func Test_copy(t *testing.T) {
 	maps.Copy(dstMap, srcMap)
 
 	fmt.Println("Destination Map:", dstMap)
+}
+
+func Test_delete(t *testing.T) {
+
+	theMap := map[string]int{"apple": 1, "banana": 2, "cherry": 3, "date": 4}
+
+	// the delete func -> return true -> then delete the 'true' elements
+	maps.DeleteFunc(theMap, func(key string, val int) bool {
+		return strings.Contains(key, "bana")
+	})
+
+	fmt.Println("After delete,", theMap)
 }
