@@ -39,3 +39,15 @@ func Test_delete(t *testing.T) {
 
 	fmt.Println("After delete,", theMap)
 }
+
+func Test_equalBetweenMap(t *testing.T) {
+	map1 := map[string]int{"a": 1, "b": 4}
+	map2 := map[string]int{"a": 1, "b": 8}
+
+	// return true if both have same size of k-v, and each k has corresponding k, and val -> can be compared by below func
+	isEqual := maps.EqualFunc(map1, map2, func(v1, v2 int) bool {
+		return v1%2 == v2%2
+	})
+
+	fmt.Println("Are maps equal?", isEqual)
+}
