@@ -7,20 +7,28 @@ import (
 	"time"
 )
 
+// The http.NewRequestWithContext() function is used to create an HTTP request with the provided context.
+// If any of the API requests exceed the timeout duration, the context's cancellation signal is propagated,
+// canceling all other ongoing requests.
 func main() {
+	// create a context with timeout func
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFunc()
-
 	urls := []string{
 		"https://api.example.com/users",
 		"https://api.example.com/products",
 		"https://api.example.com/orders",
 	}
-
+	// create a channel
 	results := make(chan string)
-
+	// concurrently do the request -> new go routine
 	for _, url := range urls {
-		go fetchAPI(ctx)
+		// same ctx means: one of them is timeout -> all of them till be canceled
+		go fetchAPI(ctx, url, results)
+	}
+	// print results
+	for range urls {
+		fmt.Println(<-results)
 	}
 }
 
