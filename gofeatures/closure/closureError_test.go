@@ -25,3 +25,20 @@ func Test_Closure_error(t *testing.T) {
 		<-done // wait execution
 	}
 }
+
+func Test_Closure_good(t *testing.T) {
+
+	done := make(chan bool)
+	values := []string{"a", "b", "c"}
+
+	for _, v := range values {
+		go func(val string) {
+			fmt.Println(val)
+			done <- true // trigger finished
+		}(v)
+	}
+
+	for _ = range values {
+		<-done // wait execution
+	}
+}
