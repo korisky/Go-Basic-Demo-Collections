@@ -61,6 +61,13 @@ func Test_loop_and_goroutine(t *testing.T) {
 	// out-print three three three
 }
 
+// Test_defer_param for the defer function, the param of it, would be settled on it's declaration
+func Test_defer_param(t *testing.T) {
+	var i = 1
+	defer fmt.Println("result: ", func() int { return i * 5 }())
+	i++ // golang only support i++, could not ++i
+}
+
 func checkError(err error) {
 	if err != nil {
 		log.Fatalln(err)
