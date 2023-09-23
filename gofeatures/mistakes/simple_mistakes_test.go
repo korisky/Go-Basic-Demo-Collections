@@ -2,6 +2,7 @@ package mistakes
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 )
 
@@ -70,4 +71,16 @@ func Test_range_order(t *testing.T) {
 	for k, v := range m {
 		fmt.Println(k, v)
 	}
+
+	// (best way on solve this is just make your code's logic not depend on traverse order at all)
+	// solution on making the order not changed at all
+	// 1) sort the keys each times we update the map (or we need to traverse on it)
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	fmt.Println(keys)
+	sort.Strings(keys)
+	fmt.Println(keys)
+	// 2) use integer as our key
 }
