@@ -24,6 +24,13 @@ func Test_http_close(t *testing.T) {
 	fmt.Println(string(body))
 }
 
+func Test_recover(t *testing.T) {
+	defer func() {
+		fmt.Println("recovered: ", recover())
+	}()
+	panic("Not good")
+}
+
 func checkError(err error) {
 	if err != nil {
 		log.Fatalln(err)
