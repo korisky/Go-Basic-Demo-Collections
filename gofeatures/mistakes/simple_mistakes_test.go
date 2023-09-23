@@ -84,3 +84,23 @@ func Test_range_order(t *testing.T) {
 	fmt.Println(keys)
 	// 2) use integer as our key
 }
+
+func Test_switch_fallthrough(t *testing.T) {
+	isSpace := func(theChar byte) bool {
+		switch theChar {
+		case ' ': // unlike Java, Golang would automatically help you add a return (here is false)
+		case '\t':
+			return true
+		}
+		return false
+	}
+	isSpaceBestPractice := func(theChar byte) bool {
+		switch theChar {
+		case ' ', '\t': // we could use multiple condition in case
+			return true
+		}
+		return false
+	}
+	fmt.Println(isSpace(' '))
+	fmt.Println(isSpaceBestPractice(' '))
+}
