@@ -52,17 +52,22 @@ func Test_closure_v2(t *testing.T) {
 }
 
 func Test_map_contains(t *testing.T) {
-
 	x := map[string]string{"one": "1", "two": ""}
-
 	// error on checking a key is exist or not in a map
 	if v := x["two"]; v == "" {
 		fmt.Println("key two is not exist")
 	}
-
 	// we should check it by using 2 output param
 	if _, exist := x["two"]; !exist {
 		fmt.Println("key two is not exist")
 	}
+}
 
+// Test_range_order, as you can see, the k & v under range would result in re-order,
+// golang's compiler is intended to do this， need to take more care of the golang's behavior on 'range'
+func Test_range_order(t *testing.T) {
+	m := map[string]int{"one": 1, "two": 2, "three": 3, "four": 4}
+	for k, v := range m {
+		fmt.Println(k, v)
+	}
 }
