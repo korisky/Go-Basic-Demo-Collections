@@ -43,6 +43,13 @@ func Test_value_changing(t *testing.T) {
 	m["x"] = d
 	fmt.Println(m) // this is the way for changing the value inside map
 
+	// another way, declare a pointer map
+	pm := map[string]*data{
+		"x": {"Tom"},
+	}
+	pm["x"].name = "Hi"
+	fmt.Println(*pm["x"])
+
 	// but for slice, it works
 	s := []data{{"Tom"}}
 	s[0].name = "Jerry"
