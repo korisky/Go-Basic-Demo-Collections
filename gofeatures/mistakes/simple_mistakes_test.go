@@ -50,3 +50,19 @@ func Test_closure_v2(t *testing.T) {
 	fmt.Println(z)
 	fmt.Println()
 }
+
+func Test_map_contains(t *testing.T) {
+
+	x := map[string]string{"one": "1", "two": ""}
+
+	// error on checking a key is exist or not in a map
+	if v := x["two"]; v == "" {
+		fmt.Println("key two is not exist")
+	}
+
+	// we should check it by using 2 output param
+	if _, exist := x["two"]; !exist {
+		fmt.Println("key two is not exist")
+	}
+
+}
