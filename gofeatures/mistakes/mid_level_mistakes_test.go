@@ -64,6 +64,8 @@ func Test_loop_and_goroutine(t *testing.T) {
 // Test_defer_param for the defer function, the param of it, would be settled on it's declaration
 func Test_defer_param(t *testing.T) {
 	var i = 1
+	// for defer function, if we use it inside the for loop, it would be closed,
+	// it will only be executed when the main thread the called is going to be terminated
 	defer fmt.Println("result: ", func() int { return i * 5 }())
 	i++ // golang only support i++, could not ++i
 }
