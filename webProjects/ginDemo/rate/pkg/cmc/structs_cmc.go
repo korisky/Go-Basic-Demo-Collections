@@ -2,8 +2,6 @@ package cmc
 
 import "time"
 
-var CmcQuoteUrl = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest"
-
 type CmcApiResponse struct {
 	Status Status                `json:"status"`
 	Data   map[string]CryptoData `json:"data"`

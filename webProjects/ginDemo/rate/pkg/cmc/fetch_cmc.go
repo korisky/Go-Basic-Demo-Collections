@@ -6,10 +6,12 @@ import (
 	"net/url"
 )
 
+const CoinMarketCapQuoteUrl = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest"
+
 // FetchCmcQuote will retrieve exchange price from CMC
 func FetchCmcQuote(apiKey string, id string, convertId string) (*CmcApiResponse, error) {
 	// construct
-	parsedUrl, _ := url.Parse(CmcQuoteUrl)
+	parsedUrl, _ := url.Parse(CoinMarketCapQuoteUrl)
 	params := url.Values{}
 	params.Add("id", id)
 	params.Add("convert_id", convertId)
