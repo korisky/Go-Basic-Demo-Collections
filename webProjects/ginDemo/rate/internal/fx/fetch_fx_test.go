@@ -1,14 +1,19 @@
 package fx
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"testing"
 )
 
 // Test_FetchFx is unit test for fx supply fetching
 func Test_FetchFx(t *testing.T) {
 	supply, err := FetchFxSupply("https://fx-rest.functionx.io")
-	if err == nil {
-		fmt.Println(supply)
+	if err != nil {
+		log.Fatalln(err)
+		return
 	}
+	jsonStr, _ := json.Marshal(supply)
+	fmt.Println(string(jsonStr))
 }
