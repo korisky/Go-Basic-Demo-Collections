@@ -1,5 +1,7 @@
 package internal
 
+var SUPPLY_PATH = "/cosmos/bank/v1beta1/supply"
+
 // SupplyItem circulating supply for each denom
 type SupplyItem struct {
 	Denom  string `json:"denom"`

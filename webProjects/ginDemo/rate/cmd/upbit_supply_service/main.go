@@ -12,7 +12,7 @@ func main() {
 		})
 	})
 
-	err := router.Run()
+	err := router.Run(":20950")
 	if err != nil {
 		return
 	}

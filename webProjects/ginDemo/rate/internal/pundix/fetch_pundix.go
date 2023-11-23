@@ -1,4 +1,4 @@
-package fx
+package pundix
 
 import (
 	"encoding/json"
@@ -6,8 +6,8 @@ import (
 	"own/gin/rate/internal"
 )
 
-// FetchFxSupply will retrieve fx supply from the given node url
-func FetchFxSupply(nodeUrl string) (*internal.SupplyApiResponse, error) {
+// FetchPundiSupply will retrieve pundix supply from the given node url
+func FetchPundiSupply(nodeUrl string) (*internal.SupplyApiResponse, error) {
 
 	// request
 	resp, err := http.Get(nodeUrl + internal.SUPPLY_PATH)
