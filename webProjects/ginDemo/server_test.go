@@ -3,14 +3,12 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"testing"
 )
 
-func main() {
-
+func Test_start(t *testing.T) {
 	r := gin.New()
-
 	r.GET("/", helloWorldGinHandler)
-
 	r.Run()
 }
 
