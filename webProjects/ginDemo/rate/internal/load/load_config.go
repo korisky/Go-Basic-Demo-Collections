@@ -8,10 +8,10 @@ import (
 )
 
 // LoadConfiguration is for loading necessary configs
-func LoadConfiguration() (*Config, error) {
+func LoadConfiguration(path string) (*Config, error) {
 	// locate
 	var config Config
-	absPath, err := filepath.Abs("config/config.json")
+	absPath, err := filepath.Abs(path)
 	if err != nil {
 		log.Fatalf("Could not load config file from path:%s\n", absPath)
 		return nil, err

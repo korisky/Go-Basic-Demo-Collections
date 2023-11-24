@@ -2,6 +2,9 @@
   "port": 20950,
   "node_serving": "fx",
   "node_url": "https://fx-rest.functionx.io",
-  "price_provider": "cg",
-  "price_provider_url": "https://api.coingecko.com/api/v3/simple/price"
+  "quote_provider": "coingecko",
+  "quote_provider_url": "https://api.coingecko.com/api/v3/simple/price",
+  "quote_provider_key": "",
+  "price_provider": "openexchange",
+  "price_provider_key": ""
 }

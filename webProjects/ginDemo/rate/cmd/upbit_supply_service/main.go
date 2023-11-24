@@ -17,7 +17,7 @@ const ApiPath = "/api/%s/info"
 
 func main() {
 	// 1. load configuration
-	config, err, apiPath, failed := loadConfigProcess()
+	config, apiPath, failed := loadConfigProcess()
 	if failed {
 		return
 	}
@@ -26,24 +26,24 @@ func main() {
 	c, cr := initCacheProcess(config)
 
 	// 3. init scheduler
-	err, failed = scheduleSetting(err, cr, c, config)
+	failed = scheduleSetting(c, cr, config)
 	if failed {
 		return
 	}
 
 	// 4. start web service
-	startWebServiceProcess(apiPath, config, err)
+	startWebServiceProcess(c, apiPath, config)
 }
 
 // loadConfigProcess for loading the configs from config.json
-func loadConfigProcess() (*load.Config, error, string, bool) {
-	config, err := load.LoadConfiguration()
+func loadConfigProcess() (*load.Config, string, bool) {
+	config, err := load.LoadConfiguration("config/config.json")
 	if err != nil {
 		log.Fatal(err)
-		return nil, nil, "", true
+		return nil, "", true
 	}
 	apiPath := fmt.Sprintf(ApiPath, config.NodeServing)
-	return config, err, apiPath, false
+	return config, apiPath, false
 }
 
 // initCacheProcess for init the cache & scheduler
@@ -51,31 +51,31 @@ func initCacheProcess(config *load.Config) (*cache.Cache, *cron.Cron) {
 	c := cache.New(65*time.Minute, 75*time.Minute)
 	cr := cron.New()
 	// run the fetching task, async
-	go handler.SchedulingTask(c, config)
+	go handler.SchedulingFeedPriceToCache(c, config)
 	return c, cr
 }
 
 // scheduleSetting for init the scheduler & task
-func scheduleSetting(err error, cr *cron.Cron, c *cache.Cache, config *load.Config) (error, bool) {
-	_, err = cr.AddFunc("@every 1h", func() {
-		handler.SchedulingTask(c, config)
+func scheduleSetting(c *cache.Cache, cr *cron.Cron, config *load.Config) bool {
+	_, err := cr.AddFunc("@every 1h", func() {
+		handler.SchedulingFeedPriceToCache(c, config)
 	})
 	if err != nil {
 		log.Fatal(err)
-		return nil, true
+		return true
 	}
 	cr.Start()
-	return err, false
+	return false
 }
 
 // startWebServiceProcess expose the API and serve
-func startWebServiceProcess(apiPath string, config *load.Config, err error) {
+func startWebServiceProcess(c *cache.Cache, apiPath string, config *load.Config) {
 	router := gin.Default()
 	router.GET(apiPath,
 		func(context *gin.Context) {
-			handler.SupplyPriceRequestHandler(context, config)
+			handler.SupplyPriceRequestHandler(context, c, config)
 		})
-	err = router.Run(":" + strconv.FormatUint(config.Port, 10))
+	err := router.Run(":" + strconv.FormatUint(config.Port, 10))
 	if err != nil {
 		log.Fatal(err)
 	}

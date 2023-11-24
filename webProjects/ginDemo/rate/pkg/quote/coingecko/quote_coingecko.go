@@ -8,7 +8,7 @@ import (
 
 type CgApiResponse map[string]map[string]float64
 
-const CoinGeckoQuoteUrl = "https://api.coingecko.com/api/v3/simple/quote"
+const CoinGeckoQuoteUrl = "https://api.coingecko.com/api/v3/simple/price"
 
 // FetchCgQuotePrice will retrieve exchange quote from CoinGecko
 func FetchCgQuotePrice(ids, vsCurrencies string) (*CgApiResponse, error) {
@@ -18,9 +18,10 @@ func FetchCgQuotePrice(ids, vsCurrencies string) (*CgApiResponse, error) {
 	params.Add("ids", ids)
 	params.Add("vs_currencies", vsCurrencies)
 	parsedUrl.RawQuery = params.Encode()
+	s := parsedUrl.String()
 
 	// request
-	resp, err := http.Get(parsedUrl.String())
+	resp, err := http.Get(s)
 	if err != nil {
 		return nil, err
 	}
