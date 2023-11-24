@@ -1,4 +1,4 @@
-package exchangerate
+package openexchange
 
 import (
 	"encoding/json"
@@ -9,11 +9,11 @@ import (
 
 func Test_FetchOpenExchange(t *testing.T) {
 	apiKey := ""
-	quote, err := FetchOpenExchangePrice(apiKey)
+	price, err := FetchOpenExchangePrice(apiKey)
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
-	jsonStr, _ := json.MarshalIndent(quote, "", "  ")
+	jsonStr, _ := json.MarshalIndent(price, "", "  ")
 	fmt.Println(string(jsonStr))
 }

@@ -1,4 +1,4 @@
-package exchangerate
+package openexchange
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ type Rates struct {
 	THB float64 `json:"THB"`
 }
 
-type OpenExchangeResponse struct {
+type OxApiResponse struct {
 	Disclaimer string `json:"disclaimer"`
 	License    string `json:"license"`
 	Timestamp  int64  `json:"timestamp"`
@@ -22,12 +22,12 @@ type OpenExchangeResponse struct {
 	Rates      Rates  `json:"rates"`
 }
 
-const OpenExchangeLatestPriceUrl = "https://openexchangerates.org/api/latest.json"
+const OxLatestPriceUrl = "https://openexchangerates.org/api/latest.json"
 
-// FetchOpenExchangePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD
-func FetchOpenExchangePrice(apiKey string) (*OpenExchangeResponse, error) {
+// FetchOpenExchangePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD, from OpenExchangeRates.org
+func FetchOpenExchangePrice(apiKey string) (*OxApiResponse, error) {
 	// construct
-	parsedUrl, _ := url.Parse(OpenExchangeLatestPriceUrl)
+	parsedUrl, _ := url.Parse(OxLatestPriceUrl)
 	params := url.Values{}
 	params.Add("app_id", apiKey)
 	params.Add("base", "USD")
@@ -45,7 +45,7 @@ func FetchOpenExchangePrice(apiKey string) (*OpenExchangeResponse, error) {
 	defer resp.Body.Close()
 
 	// parse
-	var apiResponse OpenExchangeResponse
+	var apiResponse OxApiResponse
 	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
 	if err != nil {
 		log.Fatalln(err)
