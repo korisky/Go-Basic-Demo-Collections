@@ -1,4 +1,4 @@
-package cg
+package coingecko
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// Test_FetchCgQuote is unit test for fetch CoinGecko's exchange price
+// Test_FetchCgQuote is unit test for fetch CoinGecko's exchange quote
 func Test_FetchCgQuote(t *testing.T) {
 	quote, err := FetchCgQuotePrice("fx-coin,pundi-x", "usd")
 	if err != nil {

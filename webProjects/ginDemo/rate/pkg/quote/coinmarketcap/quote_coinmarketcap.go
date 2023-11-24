@@ -1,4 +1,4 @@
-package cmc
+package coinmarketcap
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 
 const CoinMarketCapQuoteUrl = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest"
 
-// FetchCmcQuote will retrieve exchange price from CMC
+// FetchCmcQuote will retrieve exchange quote from CMC
 func FetchCmcQuote(apiKey string, id string, convertId string) (*CmcApiResponse, error) {
 	// construct
 	parsedUrl, _ := url.Parse(CoinMarketCapQuoteUrl)

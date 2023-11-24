@@ -1,4 +1,4 @@
-package cmc
+package coinmarketcap
 
 import "time"
 
@@ -54,7 +54,7 @@ type Platform struct {
 }
 
 type Quote struct {
-	Price                 float64   `json:"price"`
+	Price                 float64   `json:"quote"`
 	Volume24h             float64   `json:"volume_24h"`
 	VolumeChange24h       float64   `json:"volume_change_24h"`
 	PercentChange1h       float64   `json:"percent_change_1h"`

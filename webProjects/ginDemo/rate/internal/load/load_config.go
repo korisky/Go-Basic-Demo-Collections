@@ -7,18 +7,6 @@ import (
 	"path/filepath"
 )
 
-type ServeEnum string
-
-const (
-	FxServing     ServeEnum = "fx"
-	PundixServing           = "pundix"
-)
-
-type Config struct {
-	Port    int64     `json:"port"`
-	Serving ServeEnum `json:"serving"`
-}
-
 // LoadConfiguration is for loading necessary configs
 func LoadConfiguration() (*Config, error) {
 	// locate

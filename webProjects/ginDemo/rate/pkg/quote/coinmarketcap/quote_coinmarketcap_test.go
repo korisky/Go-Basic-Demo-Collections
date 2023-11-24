@@ -1,4 +1,4 @@
-package cmc
+package coinmarketcap
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 
 var apiKey = ""
 
-// Test_FetchCmc is unit test for cmc exchange rate retrieving
+// Test_FetchCmc is unit test for coinmarketcap exchange rate retrieving
 func Test_FetchCmc(t *testing.T) {
 	quote, err := FetchCmcQuote(apiKey, "3884", "2781")
 	if err != nil {

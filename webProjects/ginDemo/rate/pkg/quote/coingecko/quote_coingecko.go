@@ -1,4 +1,4 @@
-package cg
+package coingecko
 
 import (
 	"encoding/json"
@@ -8,9 +8,9 @@ import (
 
 type CgApiResponse map[string]map[string]float64
 
-const CoinGeckoQuoteUrl = "https://api.coingecko.com/api/v3/simple/price"
+const CoinGeckoQuoteUrl = "https://api.coingecko.com/api/v3/simple/quote"
 
-// FetchCgQuotePrice will retrieve exchange price from CoinGecko
+// FetchCgQuotePrice will retrieve exchange quote from CoinGecko
 func FetchCgQuotePrice(ids, vsCurrencies string) (*CgApiResponse, error) {
 	// construct
 	parsedUrl, _ := url.Parse(CoinGeckoQuoteUrl)

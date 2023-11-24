@@ -1,4 +1,7 @@
 {
   "port": 20950,
-  "serving": "fx"
+  "node_serving": "fx",
+  "node_url": "https://fx-rest.functionx.io",
+  "price_provider": "cg",
+  "price_provider_url": "https://api.coingecko.com/api/v3/simple/price"
 }

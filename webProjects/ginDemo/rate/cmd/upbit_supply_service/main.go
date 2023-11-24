@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-const API_PATH = "/api/%s/info"
+const ApiPath = "/api/%s/info"
 
 func main() {
 	// load configuration
@@ -19,7 +19,7 @@ func main() {
 		return
 
 	}
-	apiPath := fmt.Sprintf(API_PATH, config.Serving)
+	apiPath := fmt.Sprintf(ApiPath, config.NodeServing)
 
 	// start service
 	router := gin.Default()
@@ -27,7 +27,7 @@ func main() {
 		func(context *gin.Context) {
 			handler.SupplyPriceRequestHandler(context, config)
 		})
-	err = router.Run(":" + strconv.FormatInt(config.Port, 10))
+	err = router.Run(":" + strconv.FormatUint(config.Port, 10))
 	if err != nil {
 		log.Fatal(err)
 	}
