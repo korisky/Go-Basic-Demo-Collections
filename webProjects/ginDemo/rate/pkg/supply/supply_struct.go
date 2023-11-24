@@ -1,4 +1,4 @@
-package pkg
+package supply
 
 var SUPPLY_PATH = "/cosmos/bank/v1beta1/supply"
 

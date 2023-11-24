@@ -22,7 +22,7 @@ func FetchCmcQuote(apiKey string, id string, convertId string) (*CmcApiResponse,
 
 	// request
 	resp, err := http.DefaultClient.Do(request)
-	if nil != err {
+	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -30,7 +30,7 @@ func FetchCmcQuote(apiKey string, id string, convertId string) (*CmcApiResponse,
 	// parse
 	var apiResponse CmcApiResponse
 	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
-	if nil != err {
+	if err != nil {
 		return nil, err
 	}
 	return &apiResponse, nil

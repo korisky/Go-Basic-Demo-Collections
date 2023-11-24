@@ -21,7 +21,7 @@ func FetchCgQuotePrice(ids, vsCurrencies string) (*CgApiResponse, error) {
 
 	// request
 	resp, err := http.Get(parsedUrl.String())
-	if nil != err {
+	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -29,7 +29,7 @@ func FetchCgQuotePrice(ids, vsCurrencies string) (*CgApiResponse, error) {
 	// parse
 	var apiResponse CgApiResponse
 	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
-	if nil != err {
+	if err != nil {
 		return nil, err
 	}
 	return &apiResponse, nil
