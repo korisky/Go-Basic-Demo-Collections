@@ -15,3 +15,8 @@ func Test_Loading(t *testing.T) {
 	jsonStr, _ := json.MarshalIndent(&configuration, "", "  ")
 	fmt.Println(string(jsonStr))
 }
+
+func Test_Enum(t *testing.T) {
+	var fxEnum ServeEnum = PundixServing
+	fmt.Println(fxEnum)
+}

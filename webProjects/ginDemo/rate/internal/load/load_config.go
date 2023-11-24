@@ -7,17 +7,23 @@ import (
 	"path/filepath"
 )
 
+type ServeEnum string
+
+const (
+	FxServing     ServeEnum = "fx"
+	PundixServing           = "pundix"
+)
+
 type Config struct {
-	Port    int    `json:"port"`
-	Serving string `json:"serving"`
+	Port    int64     `json:"port"`
+	Serving ServeEnum `json:"serving"`
 }
 
 // LoadConfiguration is for loading necessary configs
 func LoadConfiguration() (*Config, error) {
-
 	// locate
 	var config Config
-	absPath, err := filepath.Abs("../../config/config.json")
+	absPath, err := filepath.Abs("config/config.json")
 	if err != nil {
 		log.Fatalf("Could not load config file from path:%s\n", absPath)
 		return nil, err
