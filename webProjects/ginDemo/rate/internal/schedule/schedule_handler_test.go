@@ -1,4 +1,4 @@
-package handler
+package schedule
 
 import (
 	"github.com/patrickmn/go-cache"

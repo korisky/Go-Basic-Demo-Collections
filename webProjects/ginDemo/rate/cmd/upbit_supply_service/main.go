@@ -6,8 +6,9 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/robfig/cron/v3"
 	"log"
-	"own/gin/rate/internal/handler"
+	"own/gin/rate/internal/api"
 	"own/gin/rate/internal/load"
+	"own/gin/rate/internal/schedule"
 	"strconv"
 	"time"
 )
@@ -51,14 +52,14 @@ func initCacheProcess(config *load.Config) (*cache.Cache, *cron.Cron) {
 	c := cache.New(65*time.Minute, 75*time.Minute)
 	cr := cron.New()
 	// run the fetching task, async
-	go handler.SchedulingFeedPriceToCache(c, config)
+	go schedule.SchedulingFeedPriceToCache(c, config)
 	return c, cr
 }
 
 // scheduleSetting for init the scheduler & task
 func scheduleSetting(c *cache.Cache, cr *cron.Cron, config *load.Config) bool {
 	_, err := cr.AddFunc("@every 1h", func() {
-		handler.SchedulingFeedPriceToCache(c, config)
+		schedule.SchedulingFeedPriceToCache(c, config)
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -73,7 +74,7 @@ func startWebServiceProcess(c *cache.Cache, apiPath string, config *load.Config)
 	router := gin.Default()
 	router.GET(apiPath,
 		func(context *gin.Context) {
-			handler.SupplyPriceRequestHandler(context, c, config)
+			api.SupplyPriceRequestHandler(context, c, config)
 		})
 	err := router.Run(":" + strconv.FormatUint(config.Port, 10))
 	if err != nil {
