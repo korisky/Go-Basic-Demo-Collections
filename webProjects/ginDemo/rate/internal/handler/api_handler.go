@@ -7,8 +7,6 @@ import (
 	"own/gin/rate/internal/load"
 	"own/gin/rate/pkg/exchange"
 	"own/gin/rate/pkg/supply"
-	"own/gin/rate/pkg/supply/fx"
-	"own/gin/rate/pkg/supply/pundix"
 	"strconv"
 	"strings"
 	"time"
@@ -18,7 +16,7 @@ import (
 func SupplyPriceRequestHandler(ctx *gin.Context, c *cache.Cache, config *load.Config) {
 
 	// get denom supply
-	circulatingSupply, failed := denomCirculatingSupply(config)
+	circulatingSupply, failed := getCirculatingSupply(config)
 	if failed {
 		return
 	}
@@ -46,23 +44,17 @@ func SupplyPriceRequestHandler(ctx *gin.Context, c *cache.Cache, config *load.Co
 	ctx.JSON(200, apiResponse)
 }
 
-// denomCirculatingSupply will retrieve Denom circulating supply
-func denomCirculatingSupply(config *load.Config) (float64, bool) {
-	// retrieve circulating supply TODO async
-	var circulatingSupply float64
-	var supplyResp *supply.SupplyApiResponse
-	var err error
-	if config.NodeServing == load.FxServing {
-		supplyResp, err = fx.FetchFxSupply(config.NodeUrl)
-	} else {
-		supplyResp, err = pundix.FetchPundiSupply(config.NodeUrl)
-	}
+// getCirculatingSupply will retrieve Denom circulating supply
+func getCirculatingSupply(config *load.Config) (float64, bool) {
+	// fetch supply
+	supplyResp, err := supply.FetchSupply(config.NodeUrl)
 	if err != nil {
 		log.Fatal(err)
 		return 0, true
 	}
 
 	// extract supply TODO compact into request util
+	var circulatingSupply float64
 	for _, item := range supplyResp.Supply {
 		if load.FxServing == config.NodeServing && strings.EqualFold("fx", item.Denom) {
 			circulatingSupply, err = strconv.ParseFloat(item.Amount, 64)
@@ -78,19 +70,4 @@ func denomCirculatingSupply(config *load.Config) (float64, bool) {
 		return 0, true
 	}
 	return circulatingSupply, false
-}
-
-// buildMarketCapItem build single MarketCapItem
-func buildMarketCapItem(symbol, currency, provider string, price, supply float64, td time.Time) *MarketCapItem {
-	return &MarketCapItem{
-		Symbol:       symbol,
-		CurrencyCode: currency,
-		Price:        price,
-		MarketCap:    price * supply,
-		//AccTradePrice24h:    0,
-		CirculatingSupply:   uint64(supply / 18),
-		MaxSupply:           uint64(supply / 18),
-		Provider:            provider,
-		LastUpdateTimestamp: td,
-	}
 }

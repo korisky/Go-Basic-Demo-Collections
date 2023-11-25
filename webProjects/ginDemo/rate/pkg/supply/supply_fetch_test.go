@@ -1,4 +1,4 @@
-package pundix
+package supply
 
 import (
 	"encoding/json"
@@ -7,9 +7,16 @@ import (
 	"testing"
 )
 
-// Test_FetchPundix is unit test for pundix supply fetching
+func Test_FetchFx(t *testing.T) {
+	fetchCalling("https://fx-rest.functionx.io")
+}
+
 func Test_FetchPundix(t *testing.T) {
-	supply, err := FetchPundiSupply("https://fx-rest.functionx.io")
+	fetchCalling("https://px-rest.pundix.com")
+}
+
+func fetchCalling(nodeUrl string) {
+	supply, err := FetchSupply(nodeUrl)
 	if err != nil {
 		log.Fatalln(err)
 		return
