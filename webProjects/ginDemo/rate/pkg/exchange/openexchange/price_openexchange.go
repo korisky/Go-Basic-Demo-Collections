@@ -5,7 +5,15 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"own/gin/rate/pkg/exchange"
 )
+
+const OxLatestPriceUrl = "https://openexchangerates.org/api/latest.json"
+
+type OxFetcher struct {
+	UsdPrice float64
+	ApiKey   string
+}
 
 type Rates struct {
 	IDR float64 `json:"IDR"`
@@ -22,7 +30,23 @@ type OxApiResponse struct {
 	Rates      Rates  `json:"rates"`
 }
 
-const OxLatestPriceUrl = "https://openexchangerates.org/api/latest.json"
+// FetchConvertToQuotePrices implementation for OpenExchange
+func (o *OxFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
+	// fetch
+	openExchangeResp, err := FetchOpenExchangePrice(o.ApiKey)
+	if err != nil {
+		return nil, err
+	}
+	// extract
+	prices := exchange.QuotePrices{
+		ToUSD: o.UsdPrice,
+		ToSGD: openExchangeResp.Rates.SGD * o.UsdPrice,
+		ToTHB: openExchangeResp.Rates.THB * o.UsdPrice,
+		ToKRW: openExchangeResp.Rates.KRW * o.UsdPrice,
+		ToIDR: openExchangeResp.Rates.IDR * o.UsdPrice,
+	}
+	return &prices, nil
+}
 
 // FetchOpenExchangePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD, from OpenExchangeRates.org
 func FetchOpenExchangePrice(apiKey string) (*OxApiResponse, error) {
