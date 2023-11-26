@@ -2,13 +2,10 @@ package openexchange
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/url"
 	"own/gin/rate/pkg/exchange"
 )
-
-const OxLatestPriceUrl = "https://openexchangerates.org/api/latest.json"
 
 type OxFetcher struct {
 	UsdPrice float64
@@ -29,6 +26,8 @@ type OxApiResponse struct {
 	Base       string `json:"base"`
 	Rates      Rates  `json:"rates"`
 }
+
+const oxLatestPriceUrl = "https://openexchangerates.org/api/latest.json"
 
 // FetchConvertToQuotePrices implementation for OpenExchange
 func (o *OxFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
@@ -51,7 +50,7 @@ func (o *OxFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
 // FetchOpenExchangePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD, from OpenExchangeRates.org
 func FetchOpenExchangePrice(apiKey string) (*OxApiResponse, error) {
 	// construct
-	parsedUrl, _ := url.Parse(OxLatestPriceUrl)
+	parsedUrl, _ := url.Parse(oxLatestPriceUrl)
 	params := url.Values{}
 	params.Add("app_id", apiKey)
 	params.Add("base", "USD")
@@ -63,7 +62,6 @@ func FetchOpenExchangePrice(apiKey string) (*OxApiResponse, error) {
 	// request
 	resp, err := http.Get(parsedUrl.String())
 	if err != nil {
-		log.Fatalln(err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -72,7 +70,6 @@ func FetchOpenExchangePrice(apiKey string) (*OxApiResponse, error) {
 	var apiResponse OxApiResponse
 	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
 	if err != nil {
-		log.Fatalln(err)
 		return nil, err
 	}
 	return &apiResponse, nil

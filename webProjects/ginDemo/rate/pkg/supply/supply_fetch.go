@@ -22,6 +22,7 @@ func FetchCirculatingSupply(config *load.Config) (float64, error) {
 	// extract supply
 	supply, err := extractTargetDenomCirculatingSupply(supplyResp, config)
 	if err != nil {
+		log.Fatal(err)
 		return 0, err
 	}
 	// decimals

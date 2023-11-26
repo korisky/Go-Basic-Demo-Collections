@@ -5,7 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"own/gin/rate/pkg/exchange"
 )
+
+type ErFetcher struct {
+	UsdPrice float64
+	ApiKey   string
+}
 
 type ErApiResponse struct {
 	Result             string             `json:"result"`
@@ -19,12 +25,31 @@ type ErApiResponse struct {
 	ConversionRates    map[string]float64 `json:"conversion_rates"`
 }
 
-const ErLatestPriceUrl = "https://v6.exchangerate-api.com/v6/%s/latest/%s"
+const erLatestPriceUrl = "https://v6.exchangerate-api.com/v6/%s/latest/%s"
+
+// FetchConvertToQuotePrices implementation for ExchangeRate
+func (e *ErFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
+	// fetch
+	exchangeRateResp, err := FetchExchangeRatePrice(e.ApiKey)
+	if err != nil {
+		return nil, err
+	}
+	// extract
+	usdPrice := (exchangeRateResp.ConversionRates)["USD"]
+	prices := exchange.QuotePrices{
+		ToUSD: usdPrice,
+		ToSGD: (exchangeRateResp.ConversionRates)["SGD"] * usdPrice,
+		ToTHB: (exchangeRateResp.ConversionRates)["THB"] * usdPrice,
+		ToKRW: (exchangeRateResp.ConversionRates)["KRW"] * usdPrice,
+		ToIDR: (exchangeRateResp.ConversionRates)["IDR"] * usdPrice,
+	}
+	return &prices, nil
+}
 
 // FetchExchangeRatePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD, from ExchangeRate-api.com
 func FetchExchangeRatePrice(apiKey string) (*ErApiResponse, error) {
 	// request
-	parsedUrl := fmt.Sprintf(ErLatestPriceUrl, apiKey, "USD")
+	parsedUrl := fmt.Sprintf(erLatestPriceUrl, apiKey, "USD")
 	resp, err := http.Get(parsedUrl)
 	if err != nil {
 		return nil, err

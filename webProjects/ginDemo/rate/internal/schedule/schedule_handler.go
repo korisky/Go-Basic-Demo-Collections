@@ -4,6 +4,8 @@ import (
 	"github.com/patrickmn/go-cache"
 	"log"
 	"own/gin/rate/internal/load"
+	"own/gin/rate/pkg/exchange"
+	"own/gin/rate/pkg/exchange/exchangerate"
 	"own/gin/rate/pkg/exchange/openexchange"
 	"own/gin/rate/pkg/quote/coingecko"
 )
@@ -12,12 +14,7 @@ import (
 func SchedulingFeedPriceToCache(c *cache.Cache, config *load.Config) {
 
 	// TODO currently only support below config + hard coding
-	quoteProvider := config.QuoteProvider
-	priceProvider := config.PriceProvider
-	if quoteProvider != load.CgPrice || priceProvider != load.OpenExchange {
-		log.Fatal("Currently only support CoinGecko as quote provider, OpenExchange as exchange price provider")
-		return
-	}
+	//quoteProvider := config.QuoteProvider
 
 	// fetch quote price
 	coinIds := "fx-coin"
@@ -32,13 +29,18 @@ func SchedulingFeedPriceToCache(c *cache.Cache, config *load.Config) {
 	UsdPrice := (*cgQuoteResp)[coinIds]["usd"]
 
 	// fetch fiat prices
-	fetcher := openexchange.OxFetcher{
-		UsdPrice: UsdPrice,
-		ApiKey:   config.PriceProviderKey}
+	var fetcher exchange.QuotePriceFetcher
+	switch config.PriceProvider {
+	case load.OpenExchange:
+		fetcher = &openexchange.OxFetcher{UsdPrice: UsdPrice, ApiKey: config.PriceProviderKey}
+	case load.ExchangeRate:
+		fetcher = &exchangerate.ErFetcher{UsdPrice: UsdPrice, ApiKey: config.PriceProviderKey}
+	default:
+		log.Fatalf("Not supported price provider: %v", config.PriceProvider)
+	}
 	prices, err := fetcher.FetchConvertToQuotePrices()
 	if err != nil {
-		log.Fatal(err)
-		return
+		log.Fatalf("Error on fetching quote prices: %v", err)
 	}
 	log.Default().Printf("[Prices] %s:USD 1:%f, %s:SGD 1:%f, %s:THB 1:%f, %s:KRW 1:%f, %s:IDR 1:%f",
 		config.NodeServing, prices.ToUSD, config.NodeServing, prices.ToSGD, config.NodeServing, prices.ToTHB,

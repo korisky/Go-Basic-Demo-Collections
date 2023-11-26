@@ -1,7 +1,7 @@
 package exchange
 
-// QuotePriceConverter is for converting external exchange prices to QuotePrices
-type QuotePriceConverter interface {
+// QuotePriceFetcher is for converting external exchange prices to QuotePrices
+type QuotePriceFetcher interface {
 	FetchConvertToQuotePrices() (*QuotePrices, error)
 }
 
