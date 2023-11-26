@@ -7,9 +7,10 @@ type QuotePriceFetcher interface {
 
 // QuotePrices is the target prices would be cached
 type QuotePrices struct {
-	ToUSD float64
-	ToSGD float64
-	ToTHB float64
-	ToKRW float64
-	ToIDR float64
+	ToUSD           float64
+	ToSGD           float64
+	ToTHB           float64
+	ToKRW           float64
+	ToIDR           float64
+	UpdateTimestamp int64
 }

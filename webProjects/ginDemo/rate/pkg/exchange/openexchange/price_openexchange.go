@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"own/gin/rate/pkg/exchange"
+	"time"
 )
 
 type OxFetcher struct {
@@ -38,11 +39,12 @@ func (o *OxFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
 	}
 	// extract
 	prices := exchange.QuotePrices{
-		ToUSD: o.UsdPrice,
-		ToSGD: openExchangeResp.Rates.SGD * o.UsdPrice,
-		ToTHB: openExchangeResp.Rates.THB * o.UsdPrice,
-		ToKRW: openExchangeResp.Rates.KRW * o.UsdPrice,
-		ToIDR: openExchangeResp.Rates.IDR * o.UsdPrice,
+		ToUSD:           o.UsdPrice,
+		ToSGD:           openExchangeResp.Rates.SGD * o.UsdPrice,
+		ToTHB:           openExchangeResp.Rates.THB * o.UsdPrice,
+		ToKRW:           openExchangeResp.Rates.KRW * o.UsdPrice,
+		ToIDR:           openExchangeResp.Rates.IDR * o.UsdPrice,
+		UpdateTimestamp: time.Now().UnixMilli(),
 	}
 	return &prices, nil
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"own/gin/rate/pkg/exchange"
+	"time"
 )
 
 type ErFetcher struct {
@@ -37,11 +38,12 @@ func (e *ErFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
 	// extract
 	usdPrice := (exchangeRateResp.ConversionRates)["USD"]
 	prices := exchange.QuotePrices{
-		ToUSD: usdPrice,
-		ToSGD: (exchangeRateResp.ConversionRates)["SGD"] * usdPrice,
-		ToTHB: (exchangeRateResp.ConversionRates)["THB"] * usdPrice,
-		ToKRW: (exchangeRateResp.ConversionRates)["KRW"] * usdPrice,
-		ToIDR: (exchangeRateResp.ConversionRates)["IDR"] * usdPrice,
+		ToUSD:           usdPrice,
+		ToSGD:           (exchangeRateResp.ConversionRates)["SGD"] * usdPrice,
+		ToTHB:           (exchangeRateResp.ConversionRates)["THB"] * usdPrice,
+		ToKRW:           (exchangeRateResp.ConversionRates)["KRW"] * usdPrice,
+		ToIDR:           (exchangeRateResp.ConversionRates)["IDR"] * usdPrice,
+		UpdateTimestamp: time.Now().UnixMilli(),
 	}
 	return &prices, nil
 }

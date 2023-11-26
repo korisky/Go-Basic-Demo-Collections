@@ -7,7 +7,6 @@ import (
 	"own/gin/rate/internal/load"
 	"own/gin/rate/pkg/exchange"
 	"own/gin/rate/pkg/supply"
-	"time"
 )
 
 // SupplyPriceRequestHandler calculate market cap, from sync supply checking + cached quote price retrieving
@@ -34,11 +33,10 @@ func SupplyPriceRequestHandler(ctx *gin.Context, c *cache.Cache, config *load.Co
 	if load.PundixServing == config.NodeServing {
 		provider = "Pundi X"
 	}
-	now := time.Now()
-	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "USD", provider, prices.ToUSD, circulatingSupply, now))
-	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "SGD", provider, prices.ToSGD, circulatingSupply, now))
-	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "THB", provider, prices.ToTHB, circulatingSupply, now))
-	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "KRW", provider, prices.ToKRW, circulatingSupply, now))
-	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "IDR", provider, prices.ToIDR, circulatingSupply, now))
+	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "USD", provider, prices.ToUSD, circulatingSupply, prices.UpdateTimestamp))
+	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "SGD", provider, prices.ToSGD, circulatingSupply, prices.UpdateTimestamp))
+	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "THB", provider, prices.ToTHB, circulatingSupply, prices.UpdateTimestamp))
+	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "KRW", provider, prices.ToKRW, circulatingSupply, prices.UpdateTimestamp))
+	apiResponse = append(apiResponse, *buildMarketCapItem(string(config.NodeServing), "IDR", provider, prices.ToIDR, circulatingSupply, prices.UpdateTimestamp))
 	ctx.JSON(200, apiResponse)
 }

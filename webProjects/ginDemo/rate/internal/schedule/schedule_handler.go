@@ -13,7 +13,7 @@ import (
 // SchedulingFeedPriceToCache will fetch price from quote & exchange, get exchange rate for denom to fiat
 func SchedulingFeedPriceToCache(c *cache.Cache, config *load.Config) {
 
-	// TODO currently only support below config + hard coding
+	// TODO currently only support CoinGecko for quote price provider
 	//quoteProvider := config.QuoteProvider
 
 	// fetch quote price
@@ -40,7 +40,7 @@ func SchedulingFeedPriceToCache(c *cache.Cache, config *load.Config) {
 	}
 	prices, err := fetcher.FetchConvertToQuotePrices()
 	if err != nil {
-		log.Fatalf("Error on fetching quote prices: %v", err)
+		log.Fatalf("Error on fetching exchange prices: %v", err)
 	}
 	log.Default().Printf("[Prices] %s:USD 1:%f, %s:SGD 1:%f, %s:THB 1:%f, %s:KRW 1:%f, %s:IDR 1:%f",
 		config.NodeServing, prices.ToUSD, config.NodeServing, prices.ToSGD, config.NodeServing, prices.ToTHB,

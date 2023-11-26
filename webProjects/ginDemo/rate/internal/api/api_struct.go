@@ -2,7 +2,6 @@ package api
 
 import (
 	"strings"
-	"time"
 )
 
 type ApiResponse []MarketCapItem
@@ -20,7 +19,7 @@ type MarketCapItem struct {
 }
 
 // buildMarketCapItem build single MarketCapItem
-func buildMarketCapItem(symbol, currency, provider string, price, supply float64, td time.Time) *MarketCapItem {
+func buildMarketCapItem(symbol, currency, provider string, price, supply float64, td int64) *MarketCapItem {
 	return &MarketCapItem{
 		Symbol:       strings.ToUpper(symbol),
 		CurrencyCode: currency,
@@ -30,6 +29,6 @@ func buildMarketCapItem(symbol, currency, provider string, price, supply float64
 		CirculatingSupply:   uint64(supply),
 		MaxSupply:           uint64(supply),
 		Provider:            provider,
-		LastUpdateTimestamp: td.UnixMilli(),
+		LastUpdateTimestamp: td,
 	}
 }
