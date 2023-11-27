@@ -13,7 +13,7 @@ import (
 func SupplyPriceRequestHandler(ctx *gin.Context, c *cache.Cache, config *load.Config) {
 
 	// get denom circulation supply
-	circulatingSupply, err := supply.FetchCirculatingSupply(config)
+	circulatingSupply, err := supply.FetchTargetSupply(config)
 	if err != nil {
 		log.Fatal(err)
 		return

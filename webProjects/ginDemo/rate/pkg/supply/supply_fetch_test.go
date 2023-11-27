@@ -4,14 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"own/gin/rate/internal/load"
 	"testing"
 )
 
-func Test_FetchFx(t *testing.T) {
+func Test_FetchTarget(t *testing.T) {
+	configuration, _ := load.LoadConfiguration("../../config/config.json")
+	supply, _ := FetchTargetSupply(configuration)
+	jsonStr, _ := json.MarshalIndent(supply, "", "  ")
+	fmt.Println(string(jsonStr))
+}
+
+func Test_Fetch(t *testing.T) {
 	fetchCalling("https://fx-rest.functionx.io")
 }
 
-func Test_FetchPundix(t *testing.T) {
+func Test_FetchP(t *testing.T) {
 	fetchCalling("https://px-rest.pundix.com")
 }
 

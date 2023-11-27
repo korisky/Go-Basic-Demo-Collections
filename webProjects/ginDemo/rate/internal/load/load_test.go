@@ -8,7 +8,7 @@ import (
 )
 
 func Test_Loading(t *testing.T) {
-	configuration, err := LoadConfiguration()
+	configuration, err := LoadConfiguration("../../config/config.json")
 	if err != nil {
 		log.Fatal(err)
 	}
