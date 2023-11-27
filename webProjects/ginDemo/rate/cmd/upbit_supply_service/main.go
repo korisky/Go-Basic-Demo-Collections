@@ -22,16 +22,13 @@ func main() {
 	if failed {
 		return
 	}
-
 	// 2. init cache & run next
 	c, cr := initCacheProcess(config)
-
 	// 3. init scheduler
 	failed = scheduleSetting(c, cr, config)
 	if failed {
 		return
 	}
-
 	// 4. start web service
 	startWebServiceProcess(c, apiPath, config)
 }

@@ -5,11 +5,11 @@ import (
 	"github.com/patrickmn/go-cache"
 	"log"
 	"own/gin/rate/internal/load"
-	"own/gin/rate/pkg/exchange"
+	"own/gin/rate/pkg/fiatexchange"
 	"own/gin/rate/pkg/supply"
 )
 
-// SupplyPriceRequestHandler calculate market cap, from sync supply checking + cached quote price retrieving
+// SupplyPriceRequestHandler calculate market cap, from sync supply checking + cached cryptoexchange price retrieving
 func SupplyPriceRequestHandler(ctx *gin.Context, c *cache.Cache, config *load.Config) {
 
 	// get denom circulation supply
@@ -25,7 +25,7 @@ func SupplyPriceRequestHandler(ctx *gin.Context, c *cache.Cache, config *load.Co
 		log.Fatal("No Cache")
 		return
 	}
-	prices, _ := data.(exchange.QuotePrices)
+	prices, _ := data.(fiatexchange.ToFiatPrices)
 
 	// calculating market price & form response
 	apiResponse := ApiResponse{}

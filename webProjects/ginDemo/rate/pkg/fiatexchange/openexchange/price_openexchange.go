@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"own/gin/rate/pkg/exchange"
+	"own/gin/rate/pkg/fiatexchange"
 	"time"
 )
 
@@ -30,15 +30,15 @@ type OxApiResponse struct {
 
 const oxLatestPriceUrl = "https://openexchangerates.org/api/latest.json"
 
-// FetchConvertToQuotePrices implementation for OpenExchange
-func (o *OxFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
+// FetchToAllFiatPrices implementation for OpenExchange
+func (o *OxFetcher) FetchToAllFiatPrices() (*fiatexchange.ToFiatPrices, error) {
 	// fetch
 	openExchangeResp, err := FetchOpenExchangePrice(o.ApiKey)
 	if err != nil {
 		return nil, err
 	}
 	// extract
-	prices := exchange.QuotePrices{
+	prices := fiatexchange.ToFiatPrices{
 		ToUSD:           o.UsdPrice,
 		ToSGD:           openExchangeResp.Rates.SGD * o.UsdPrice,
 		ToTHB:           openExchangeResp.Rates.THB * o.UsdPrice,
@@ -49,7 +49,7 @@ func (o *OxFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
 	return &prices, nil
 }
 
-// FetchOpenExchangePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD, from OpenExchangeRates.org
+// FetchOpenExchangePrice will retrieve fiatexchange rate for IDR, KRW, SGD, THB base on USD, from OpenExchangeRates.org
 func FetchOpenExchangePrice(apiKey string) (*OxApiResponse, error) {
 	// construct
 	parsedUrl, _ := url.Parse(oxLatestPriceUrl)

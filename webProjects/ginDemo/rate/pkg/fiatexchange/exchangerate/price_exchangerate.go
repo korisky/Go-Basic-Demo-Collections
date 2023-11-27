@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"own/gin/rate/pkg/exchange"
+	"own/gin/rate/pkg/fiatexchange"
 	"time"
 )
 
@@ -28,8 +28,8 @@ type ErApiResponse struct {
 
 const erLatestPriceUrl = "https://v6.exchangerate-api.com/v6/%s/latest/%s"
 
-// FetchConvertToQuotePrices implementation for ExchangeRate
-func (e *ErFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
+// FetchToAllFiatPrices implementation for ExchangeRate
+func (e *ErFetcher) FetchToAllFiatPrices() (*fiatexchange.ToFiatPrices, error) {
 	// fetch
 	exchangeRateResp, err := FetchExchangeRatePrice(e.ApiKey)
 	if err != nil {
@@ -37,7 +37,7 @@ func (e *ErFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
 	}
 	// extract
 	usdPrice := (exchangeRateResp.ConversionRates)["USD"]
-	prices := exchange.QuotePrices{
+	prices := fiatexchange.ToFiatPrices{
 		ToUSD:           usdPrice,
 		ToSGD:           (exchangeRateResp.ConversionRates)["SGD"] * usdPrice,
 		ToTHB:           (exchangeRateResp.ConversionRates)["THB"] * usdPrice,
@@ -48,7 +48,7 @@ func (e *ErFetcher) FetchConvertToQuotePrices() (*exchange.QuotePrices, error) {
 	return &prices, nil
 }
 
-// FetchExchangeRatePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD, from ExchangeRate-api.com
+// FetchExchangeRatePrice will retrieve fiatexchange rate for IDR, KRW, SGD, THB base on USD, from ExchangeRate-api.com
 func FetchExchangeRatePrice(apiKey string) (*ErApiResponse, error) {
 	// request
 	parsedUrl := fmt.Sprintf(erLatestPriceUrl, apiKey, "USD")

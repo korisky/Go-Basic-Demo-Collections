@@ -1,4 +1,4 @@
-package openexchange
+package exchangerate
 
 import (
 	"encoding/json"
@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-func Test_FetchOpenExchange(t *testing.T) {
+func Test_FetchExchangeRatePrice(t *testing.T) {
 	apiKey := ""
-	price, err := FetchOpenExchangePrice(apiKey)
+	price, err := FetchExchangeRatePrice(apiKey)
 	if err != nil {
 		log.Fatalln(err)
 		return
@@ -20,8 +20,8 @@ func Test_FetchOpenExchange(t *testing.T) {
 
 func Test_FetchQuotePrice(t *testing.T) {
 	apiKey := ""
-	fetch := OxFetcher{UsdPrice: float64(1), ApiKey: apiKey}
-	prices, err := fetch.FetchConvertToQuotePrices()
+	fetch := ErFetcher{UsdPrice: float64(1), ApiKey: apiKey}
+	prices, err := fetch.FetchToAllFiatPrices()
 	if err != nil {
 		log.Fatalln(err)
 		return

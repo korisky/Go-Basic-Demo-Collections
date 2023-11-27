@@ -10,7 +10,7 @@ const (
 	PundixServing           = "pundix"
 )
 
-// QuoteProviderEnum for quote provider, CoinMarketCap, CoinGecko
+// QuoteProviderEnum for cryptoexchange provider, CoinMarketCap, CoinGecko
 const (
 	CmcPrice QuoteProviderEnum = "coinmarketcap"
 	CgPrice                    = "coingecko"

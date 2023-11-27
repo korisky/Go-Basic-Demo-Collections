@@ -21,7 +21,6 @@ func LoadConfiguration(path string) (*Config, error) {
 		log.Fatalf("Could not open config file from path:%s\n", absPath)
 		return nil, err
 	}
-
 	// load
 	defer configFile.Close()
 	jsonParser := json.NewDecoder(configFile)
