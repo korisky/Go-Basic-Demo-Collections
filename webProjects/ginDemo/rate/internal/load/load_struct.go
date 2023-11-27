@@ -27,7 +27,6 @@ type Config struct {
 	NodeServing      ServeEnum         `json:"node_serving"`
 	NodeUrl          string            `json:"node_url"` // rest url
 	QuoteProvider    QuoteProviderEnum `json:"quote_provider"`
-	QuoteProviderUrl string            `json:"quote_provider_url"`
 	QuoteProviderKey string            `json:"quote_provider_key"`
 	PriceProvider    PriceProviderEnum `json:"price_provider"`
 	PriceProviderKey string            `json:"price_provider_key"`
