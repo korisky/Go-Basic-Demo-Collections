@@ -36,7 +36,7 @@ type CryptoData struct {
 	SelfReportedMarketCap         *float64         `json:"self_reported_market_cap"`
 	TvlRatio                      *float64         `json:"tvl_ratio"`
 	LastUpdated                   time.Time        `json:"last_updated"`
-	Quote                         map[string]Quote `json:"cryptoexchange"`
+	Quote                         map[string]Quote `json:"quote"`
 }
 
 type Tag struct {
