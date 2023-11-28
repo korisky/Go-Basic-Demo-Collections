@@ -6,6 +6,7 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/robfig/cron/v3"
 	"log"
+	"os"
 	"own/gin/rate/internal/api"
 	"own/gin/rate/internal/load"
 	"own/gin/rate/internal/schedule"
@@ -21,12 +22,11 @@ const ConfigPath = "config/config.json"
 
 func main() {
 	// 1. load configuration
-	//configPath := ConfigPath
-	//if len(os.Args) >= 2 {
-	//	configPath = os.Args[1]
-	//}
-
-	config, err := loadConfigProcess()
+	configPath := ConfigPath
+	if len(os.Args) >= 2 {
+		configPath = os.Args[1]
+	}
+	config, err := loadConfigProcess(configPath)
 	if err != nil {
 		return
 	}
@@ -43,8 +43,8 @@ func main() {
 }
 
 // loadConfigProcess for loading the configs from config.json
-func loadConfigProcess() (*load.Config, error) {
-	config, err := load.LoadConfiguration("config/config.json")
+func loadConfigProcess(path string) (*load.Config, error) {
+	config, err := load.LoadConfiguration(path)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
