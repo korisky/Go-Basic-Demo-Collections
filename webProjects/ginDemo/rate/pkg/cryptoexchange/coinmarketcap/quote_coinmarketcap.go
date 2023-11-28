@@ -6,12 +6,12 @@ import (
 	"net/url"
 )
 
-const CoinMarketCapQuoteUrl = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest"
+const reqUrl = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest"
 
-// FetchCmcQuote will retrieve fiatexchange cryptoexchange from CMC
+// FetchCmcQuote will retrieve denom : fiat from CMC
 func FetchCmcQuote(apiKey string, id string, convertId string) (*CmcApiResponse, error) {
 	// construct
-	parsedUrl, _ := url.Parse(CoinMarketCapQuoteUrl)
+	parsedUrl, _ := url.Parse(reqUrl)
 	params := url.Values{}
 	params.Add("id", id)
 	params.Add("convert_id", convertId)

@@ -28,7 +28,7 @@ type OxApiResponse struct {
 	Rates      Rates  `json:"rates"`
 }
 
-const oxLatestPriceUrl = "https://openexchangerates.org/api/latest.json"
+const reqUrl = "https://openexchangerates.org/api/latest.json"
 
 // FetchToAllFiatPrices implementation for OpenExchange
 func (o *OxFetcher) FetchToAllFiatPrices() (*fiatexchange.ToFiatPrices, error) {
@@ -49,10 +49,10 @@ func (o *OxFetcher) FetchToAllFiatPrices() (*fiatexchange.ToFiatPrices, error) {
 	return &prices, nil
 }
 
-// FetchOpenExchangePrice will retrieve fiatexchange rate for IDR, KRW, SGD, THB base on USD, from OpenExchangeRates.org
+// FetchOpenExchangePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD, from OpenExchangeRates.org
 func FetchOpenExchangePrice(apiKey string) (*OxApiResponse, error) {
 	// construct
-	parsedUrl, _ := url.Parse(oxLatestPriceUrl)
+	parsedUrl, _ := url.Parse(reqUrl)
 	params := url.Values{}
 	params.Add("app_id", apiKey)
 	params.Add("base", "USD")

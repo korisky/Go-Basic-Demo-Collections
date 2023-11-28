@@ -26,7 +26,7 @@ type ErApiResponse struct {
 	ConversionRates    map[string]float64 `json:"conversion_rates"`
 }
 
-const erLatestPriceUrl = "https://v6.exchangerate-api.com/v6/%s/latest/%s"
+const reqUrl = "https://v6.exchangerate-api.com/v6/%s/latest/%s"
 
 // FetchToAllFiatPrices implementation for ExchangeRate
 func (e *ErFetcher) FetchToAllFiatPrices() (*fiatexchange.ToFiatPrices, error) {
@@ -48,10 +48,10 @@ func (e *ErFetcher) FetchToAllFiatPrices() (*fiatexchange.ToFiatPrices, error) {
 	return &prices, nil
 }
 
-// FetchExchangeRatePrice will retrieve fiatexchange rate for IDR, KRW, SGD, THB base on USD, from ExchangeRate-api.com
+// FetchExchangeRatePrice will retrieve exchange rate for IDR, KRW, SGD, THB base on USD, from ExchangeRate-api.com
 func FetchExchangeRatePrice(apiKey string) (*ErApiResponse, error) {
 	// request
-	parsedUrl := fmt.Sprintf(erLatestPriceUrl, apiKey, "USD")
+	parsedUrl := fmt.Sprintf(reqUrl, apiKey, "USD")
 	resp, err := http.Get(parsedUrl)
 	if err != nil {
 		return nil, err

@@ -15,7 +15,7 @@ type CgFetcher struct {
 
 type CgApiResponse map[string]map[string]float64
 
-const CoinGeckoQuoteUrl = "https://api.coingecko.com/api/v3/simple/price"
+const reqUrl = "https://api.coingecko.com/api/v3/simple/price"
 
 // FetchToUsdPrice only retrieve denom:usd exchange rate
 func (c *CgFetcher) FetchToUsdPrice() (*cryptoexchange.ToUsdPrice, error) {
@@ -33,7 +33,7 @@ func (c *CgFetcher) FetchToUsdPrice() (*cryptoexchange.ToUsdPrice, error) {
 // FetchCgQuotePrice will retrieve denom:usd exchange rate from CoinGecko
 func FetchCgQuotePrice(ids, vsCurrencies string) (*CgApiResponse, error) {
 	// construct
-	parsedUrl, _ := url.Parse(CoinGeckoQuoteUrl)
+	parsedUrl, _ := url.Parse(reqUrl)
 	params := url.Values{}
 	params.Add("ids", ids)
 	params.Add("vs_currencies", vsCurrencies)
