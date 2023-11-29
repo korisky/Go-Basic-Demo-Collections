@@ -3,30 +3,31 @@ package supply
 import (
 	"encoding/json"
 	"errors"
+	"github.com/shopspring/decimal"
 	"log"
-	"math"
+	"math/big"
 	"net/http"
 	"own/gin/rate/internal/load"
-	"strconv"
 	"strings"
 )
 
 // FetchTargetSupply will retrieve Denom circulating supply
-func FetchTargetSupply(config *load.Config) (float64, error) {
+func FetchTargetSupply(config *load.Config) (decimal.Decimal, error) {
 	// fetch supply
 	supplyResp, err := FetchSupply(config.NodeUrl)
 	if err != nil {
 		log.Fatal(err)
-		return 0, err
+		return decimal.Decimal{}, err
 	}
 	// extract supply
-	supply, err := extractTargetSupply(supplyResp, config)
+	rawSupply, err := extractTargetSupply(supplyResp, config)
 	if err != nil {
 		log.Fatal(err)
-		return 0, err
+		return decimal.Decimal{}, err
 	}
-	// decimals
-	return supply / math.Pow10(18), nil
+	divisor := decimal.NewFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil), 0)
+	supply := rawSupply.Div(divisor)
+	return supply, nil
 }
 
 // FetchSupply will retrieve denom (fx / pundix) circulating supply from the given node url
@@ -47,13 +48,13 @@ func FetchSupply(nodeUrl string) (*SupplyApiResponse, error) {
 }
 
 // extractTargetSupply help extract target denom supply
-func extractTargetSupply(supplyResp *SupplyApiResponse, config *load.Config) (float64, error) {
+func extractTargetSupply(supplyResp *SupplyApiResponse, config *load.Config) (decimal.Decimal, error) {
 	for _, item := range supplyResp.Supply {
 		if isRelevantDenom(item, config) {
-			return strconv.ParseFloat(item.Amount, 64)
+			return decimal.NewFromString(item.Amount)
 		}
 	}
-	return 0, errors.New("relevant denom not found")
+	return decimal.Decimal{}, errors.New("relevant denom not found")
 }
 
 // isRelevantDenom filter for target denom
