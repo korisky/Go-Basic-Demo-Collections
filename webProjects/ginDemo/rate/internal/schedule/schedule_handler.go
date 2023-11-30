@@ -12,7 +12,7 @@ import (
 	"own/gin/rate/pkg/fiatexchange/openexchange"
 )
 
-// SchedulingFeedPriceToCache will fetch price from cryptoexchange & fiatexchange, get fiatexchange rate for denom to fiat
+// SchedulingFeedPriceToCache will fetch price from quote-provider & price-provider, get exchange rate for denom to fiat
 func SchedulingFeedPriceToCache(c *cache.Cache, config *load.Config) {
 
 	// fetch exchange price
@@ -36,9 +36,9 @@ func SchedulingFeedPriceToCache(c *cache.Cache, config *load.Config) {
 	var fetcher fiatexchange.ToFiatPricesFetcher
 	switch config.PriceProvider {
 	case load.OpenExchange:
-		fetcher = &openexchange.OxFetcher{UsdPrice: usdPrice, ApiKey: config.PriceProviderKey}
+		fetcher = &openexchange.OxFetcher{UsdPrice: usdPrice.DenomToUsd, ApiKey: config.PriceProviderKey}
 	case load.ExchangeRate:
-		fetcher = &exchangerate.ErFetcher{UsdPrice: usdPrice, ApiKey: config.PriceProviderKey}
+		fetcher = &exchangerate.ErFetcher{UsdPrice: usdPrice.DenomToUsd, ApiKey: config.PriceProviderKey}
 	default:
 		log.Fatalf("Not supported price provider: %v", config.PriceProvider)
 	}
@@ -49,6 +49,8 @@ func SchedulingFeedPriceToCache(c *cache.Cache, config *load.Config) {
 	log.Default().Printf("[Prices] %s:USD 1:%f, %s:SGD 1:%f, %s:THB 1:%f, %s:KRW 1:%f, %s:IDR 1:%f",
 		config.NodeServing, prices.ToUSD, config.NodeServing, prices.ToSGD, config.NodeServing, prices.ToTHB,
 		config.NodeServing, prices.ToKRW, config.NodeServing, prices.ToIDR)
+
+	// save in cache
 	c.Set("CACHE_PRICES", *prices, cache.DefaultExpiration)
 }
 
