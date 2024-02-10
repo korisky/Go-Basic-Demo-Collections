@@ -15,11 +15,18 @@ func main() {
 	// add routes
 	e.GET("/cats/:data", GetCats)
 	e.POST("/cats", AddCat)
+	e.GET("/callback", GetToken)
 
 	// add middle ware
 	e.Use(middleware.Logger())
 
 	e.Logger.Fatal(e.Start(":8000"))
+}
+
+func GetToken(c echo.Context) error {
+	token := c.QueryParam("token")
+	fmt.Printf("Got token %v\n", token)
+	return c.JSON(http.StatusOK, nil)
 }
 
 // GetCats is Get api, curl -X GET 'http://127.0.0.1:8000/cats/json?name=tom&type=fluffy'
