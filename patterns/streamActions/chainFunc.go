@@ -61,3 +61,17 @@ func (i *Iterator[V]) Filter(f func(V) bool) *Iterator[V] {
 	}
 	return i
 }
+
+// Map for mapping
+func (i *Iterator[V]) Map(f func(V) V) *Iterator[V] {
+	cpy := i.iter
+	i.iter = func(yield func(V) bool) {
+		for v := range cpy {
+			v = f(v)
+			if !yield(v) {
+				return
+			}
+		}
+	}
+	return i
+}
