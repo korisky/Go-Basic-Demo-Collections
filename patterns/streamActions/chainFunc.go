@@ -35,3 +35,29 @@ func (i *Iterator[V]) Each(f func(V)) {
 		f(i)
 	}
 }
+
+// Reverse the stream
+func (i Iterator[V]) Reverse() *Iterator[V] {
+	collect := i.Collect()
+	counter := len(collect) - 1
+	for e := range i.iter {
+		collect[counter] = e
+		counter--
+	}
+	return From(collect)
+}
+
+// Filter is for filtering
+func (i *Iterator[V]) Filter(f func(V) bool) *Iterator[V] {
+	cpy := i.iter
+	i.iter = func(yield func(V) bool) {
+		for v := range cpy {
+			if f(v) {
+				if !yield(v) {
+					return
+				}
+			}
+		}
+	}
+	return i
+}
