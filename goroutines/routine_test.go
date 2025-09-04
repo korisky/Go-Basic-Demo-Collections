@@ -12,7 +12,7 @@ func TestSimpleRoutine(t *testing.T) {
 }
 
 func say(s string) {
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		time.Sleep(100 * time.Millisecond)
 		fmt.Println(s)
 	}
