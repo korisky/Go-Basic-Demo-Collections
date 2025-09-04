@@ -8,7 +8,7 @@ import (
 
 func TestSimpleRoutine(t *testing.T) {
 	go say("world")
-	say("hello")~~~
+	say("hello")
 }
 
 func say(s string) {
