@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	client := http.Client{Transport: &http3.RoundTripper{}}
+	_ = http.Client{Transport: &http3.RoundTripper{}}
 }
