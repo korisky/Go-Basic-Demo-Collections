@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-// TestChan1WorkerPool 是使用1条channel控制worker大小的workerPool
-func TestChan1WorkerPool(t *testing.T) {
+// TestOneChanFixedSizeWorkerPool 是使用1条channel控制worker大小的workerPool
+func TestOneChanFixedSizeWorkerPool(t *testing.T) {
 
 	// request group -> 模拟有5条请求进来
 	queue := make(chan int, 5)
