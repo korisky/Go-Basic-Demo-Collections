@@ -7,7 +7,8 @@ import (
 	"time"
 )
 
-func TestGoRoutinePoolWithChannel(t *testing.T) {
+// TestChan1WorkerPool 是使用1条channel控制worker大小的workerPool
+func TestChan1WorkerPool(t *testing.T) {
 
 	// request group -> 模拟有5条请求进来
 	queue := make(chan int, 5)
@@ -15,7 +16,7 @@ func TestGoRoutinePoolWithChannel(t *testing.T) {
 		// 这里对queue这条chan进行获取，
 		// 而当chan为空的时候，相当于block住
 		for id := range queue {
-			Serve(id)
+			chan1Serve(id)
 		}
 	}()
 
@@ -42,34 +43,34 @@ func TestGoRoutinePoolWithChannel(t *testing.T) {
 	t.Log("Pool test completed")
 }
 
-var workerPool = make(chan int, 2)
-var once sync.Once
+var chan1WorkerPool = make(chan int, 2)
+var chan1Once sync.Once
 
-// initWorkerPool is about init the 'id' for worker
-func initWorkerPool() {
-	workerPool <- 1
-	workerPool <- 2
+// init1ChanWorkerPool is about init the 'id' for worker
+func init1ChanWorkerPool() {
+	chan1WorkerPool <- 1
+	chan1WorkerPool <- 2
 }
 
-func process(workerId, taskId int) {
+func chan1Process(workerId, taskId int) {
 	fmt.Printf("Worker %d started task %d\n", workerId, taskId)
 	time.Sleep(time.Second)
 	fmt.Printf("Worker %d finished task %d\n", workerId, taskId)
 }
 
-func Serve(taskId int) {
+func chan1Serve(taskId int) {
 	// 初始化一次
-	once.Do(initWorkerPool)
+	chan1Once.Do(init1ChanWorkerPool)
 	fmt.Printf("Task %d waiting for worker...\n", taskId)
 	// 阻塞的等待获取worker
-	workerId := <-workerPool
+	workerId := <-chan1WorkerPool
 	fmt.Printf("Task %d assigned to worker %d\n", taskId, workerId)
 	// 占用成功后，新建协程进行处理
 	go func() {
 		// 协程中执行主要logic
-		process(workerId, taskId)
+		chan1Process(workerId, taskId)
 		// 执行完毕后，剔除chan的占用, 这里我们把workerId放回去
-		workerPool <- workerId
+		chan1WorkerPool <- workerId
 		fmt.Printf("Worker %d released by finished task %d\n", workerId, taskId)
 	}()
 }
