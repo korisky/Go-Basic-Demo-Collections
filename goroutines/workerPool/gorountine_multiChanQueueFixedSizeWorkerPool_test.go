@@ -1,4 +1,4 @@
-package goroutines
+package workerPool
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-// TestGoRoutineWorkerPoolWithChannel 同样使用固定的worker数量, 但这里的job和result分channel更贴合真实使用
-func TestGoRoutineWorkerPoolWithChannel(t *testing.T) {
+// TestMultiChanFixedSizeWorkerPool 同样使用固定的worker数量, 但这里的job和result分channel更贴合真实使用
+func TestMultiChanFixedSizeWorkerPool(t *testing.T) {
 
 	// 声明job和result channels, 分别对应获取task的queue与处理完给出结果的queue
 	jobs := make(chan int, 5)
@@ -50,7 +50,7 @@ func TestGoRoutineWorkerPoolWithChannel(t *testing.T) {
 var workerPool = make(chan int, 2)
 var once sync.Once
 
-// init1ChanWorkerPool is about init the 'id' for worker
+// init1ChanWorkerPool is about init the 'id' for workerPool
 func initWorkerPool() {
 	workerPool <- 1
 	workerPool <- 2

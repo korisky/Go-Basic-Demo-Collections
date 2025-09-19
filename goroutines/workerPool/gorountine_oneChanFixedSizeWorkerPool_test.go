@@ -1,4 +1,4 @@
-package goroutines
+package workerPool
 
 import (
 	"fmt"
@@ -46,7 +46,7 @@ func TestOneChanFixedSizeWorkerPool(t *testing.T) {
 var chan1WorkerPool = make(chan int, 2)
 var chan1Once sync.Once
 
-// init1ChanWorkerPool is about init the 'id' for worker
+// init1ChanWorkerPool is about init the 'id' for workerPool
 func init1ChanWorkerPool() {
 	chan1WorkerPool <- 1
 	chan1WorkerPool <- 2
@@ -61,10 +61,10 @@ func chan1Process(workerId, taskId int) {
 func chan1Serve(taskId int) {
 	// 初始化一次
 	chan1Once.Do(init1ChanWorkerPool)
-	fmt.Printf("Task %d waiting for worker...\n", taskId)
+	fmt.Printf("Task %d waiting for workerPool...\n", taskId)
 	// 阻塞的等待获取worker
 	workerId := <-chan1WorkerPool
-	fmt.Printf("Task %d assigned to worker %d\n", taskId, workerId)
+	fmt.Printf("Task %d assigned to workerPool %d\n", taskId, workerId)
 	// 占用成功后，新建协程进行处理
 	go func() {
 		// 协程中执行主要logic
