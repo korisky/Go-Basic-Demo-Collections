@@ -8,6 +8,7 @@ import (
 )
 
 // TestFixedWorkerPool 使用固定大小的workerPool限制最大同时的协程数量
+// 这里的限制，无关是否同时执行, 哪怕内部task可能要抢锁等待等，都不允许新建goroutine了
 func TestFixedWorkerPool(t *testing.T) {
 	jobs := make(chan int, 10)
 	var wg sync.WaitGroup
@@ -43,5 +44,44 @@ func TestFixedWorkerPool(t *testing.T) {
 
 	// gentle shutdown
 	close(jobs)
+	t.Log("TestFixedWorkerPool test completed")
+}
+
+// TestDynamicWithWaitGroupWorkerPool 使用WaitGroup来动态控制'正在执行'的goRoutine
+// 与固定大小的TestFixedWorkerPool不同，WaitGroup使用Semaphore的版本，是控制
+// 允许多少goroutine同时执行，但当有新的task要处理，同样新建goroutine，而不是等待
+func TestDynamicWithWaitGroupWorkerPool(t *testing.T) {
+
+	// limit to 2 concurrent with semaphore
+	sem := make(chan struct{}, 2)
+	var wg sync.WaitGroup
+
+	// 声明需要执行的task的logic
+	submitJob := func(jobId int) {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			// 这里semaphore控制的是，同时能执行的goroutine数量
+			// logging中可以看到，通常ProcessingJob可以有2个并发
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			fmt.Printf("Processing job %d\n", jobId)
+			time.Sleep(time.Second)
+			fmt.Printf("Finished job %d\n", jobId)
+		}()
+	}
+
+	// 模拟一次性投敌15个job
+	for i := range 15 {
+		submitJob(i)
+	}
+
+	// waiting for finished all sem
+	wg.Wait()
+
+	// gentle shutdown
+	close(sem)
 	t.Log("TestFixedWorkerPool test completed")
 }
