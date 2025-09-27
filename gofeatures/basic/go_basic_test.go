@@ -5,6 +5,7 @@ import (
 	"math"
 	"runtime"
 	"testing"
+	"time"
 )
 
 // TestFuncDirectReturning 展示go允许func直接简单return的默认方式
@@ -68,6 +69,8 @@ func pow(x, n, lim float64) float64 {
 // TestSwitchBranches 简单的switch展示, 与if的合并类似,
 // 可以通过聚合 xx := xxx; xx 来使用xx
 func TestSwitchBranches(t *testing.T) {
+
+	// compact mode, 与if声明临时变量一样
 	fmt.Println("Go env")
 	switch os := runtime.GOOS; os {
 	case "darwin":
@@ -76,5 +79,16 @@ func TestSwitchBranches(t *testing.T) {
 		fmt.Println("Linux")
 	default:
 		fmt.Printf("%s.\n", os)
+	}
+
+	// no-condition -> Go中的长传switch可以很好的分解复杂的if-else
+	theTime := time.Now() // 注意, 这里的Now可是本地时间
+	switch {
+	case theTime.Hour() < 12:
+		fmt.Println("Good Morning...")
+	case theTime.Hour() < 17:
+		fmt.Println("Good Afternoon...")
+	default:
+		fmt.Println("Good Night...")
 	}
 }
