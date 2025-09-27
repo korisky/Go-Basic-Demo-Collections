@@ -20,7 +20,8 @@ func split(sum int) (x, y int) {
 	return
 }
 
-const TheConst = 15
+// 常量的生命可以在后面+具体类型, 达到控制精度等效果
+const TheConst uint32 = 15
 
 // TestDefaultVals 展示不同类型默认值
 func TestDefaultVals(t *testing.T) {
@@ -41,4 +42,20 @@ func TestHardTypeConvert(t *testing.T) {
 	var f float64 = math.Sqrt(float64(x*x + y*y))
 	var z uint = uint(f)
 	fmt.Println(x, y, z)
+}
+
+// TestIfWithVar 展示了Go中对判断结果进一步判断走入branch的简洁写法
+func TestIfWithVar(t *testing.T) {
+	fmt.Println(
+		pow(3, 2, 10),
+		pow(3, 3, 20),
+	)
+}
+
+func pow(x, n, lim float64) float64 {
+	// 判断得到的值, 进行二次判断, 从而使得多次判断代码更简洁
+	if v := math.Pow(x, n); v < lim {
+		return v
+	}
+	return lim
 }
