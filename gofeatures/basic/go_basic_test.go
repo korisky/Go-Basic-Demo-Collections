@@ -92,3 +92,20 @@ func TestSwitchBranches(t *testing.T) {
 		fmt.Println("Good Night...")
 	}
 }
+
+// TestIntuitiveDefer 更为直观的展示Defer与堆栈
+func TestIntuitiveDefer(t *testing.T) {
+	fmt.Println("counting")
+	for i := range 10 {
+		// 通过打印可以看出, 这里同样是堆栈存储, FILO优先执行最近的一个defer
+		defer fmt.Println(i + 1)
+		// 这里有一个经典Golang内存泄漏问题
+		// 由于defer一定是该func结束，才会被调用
+		// 但假设, 我们是open一个file-inputStream, 然后defer去关闭
+		// 由于没有结束该func, 所以没有defer去关闭（真正走完所有for-loop才会调用
+		// 下一个for循环, 我们在没有关闭的时候又open了新的inputStream
+		// 最后, 结束所有loop, 开始处理defer堆栈可能就会报错,
+		// 因为已经丢失了for中某个轮次的句柄 (局部变量), 无法关闭, 从而造成内存泄漏
+	}
+	fmt.Println("done")
+}
