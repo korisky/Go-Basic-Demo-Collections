@@ -20,6 +20,8 @@ func split(sum int) (x, y int) {
 	return
 }
 
+const TheConst = 15
+
 // TestDefaultVals 展示不同类型默认值
 func TestDefaultVals(t *testing.T) {
 	var i int // 不需要+-的时候多使用uint, 与Java不同, Go支持默认无符号会使得与Solana交互非常方便
@@ -27,7 +29,9 @@ func TestDefaultVals(t *testing.T) {
 	var b bool
 	var s string
 	// 这里使用%s的情况, 空字符串直接是空, 但用%q会展示""
-	fmt.Printf("%v, %v, %v, %q\n", i, f, b, s)
+	// %T直接展示类型
+	fmt.Printf("%v is type %T\n%v is type %T\n%v is type %T\n%q is type %T\n%v is type %T\n",
+		i, i, f, f, b, b, s, s, TheConst, TheConst)
 }
 
 // TestHardTypeConvert 与Java不同,
