@@ -3,6 +3,7 @@ package basic
 import (
 	"fmt"
 	"math"
+	"runtime"
 	"testing"
 )
 
@@ -55,7 +56,25 @@ func TestIfWithVar(t *testing.T) {
 func pow(x, n, lim float64) float64 {
 	// 判断得到的值, 进行二次判断, 从而使得多次判断代码更简洁
 	if v := math.Pow(x, n); v < lim {
+		fmt.Printf("v is less, %v\n", v)
 		return v
+	} else {
+		fmt.Printf("v is greater, %v\n", v)
 	}
+	// 需要注意, branches内调用v都是可以的, 但是出了if-else, 是无法再获取v的了
 	return lim
+}
+
+// TestSwitchBranches 简单的switch展示, 与if的合并类似,
+// 可以通过聚合 xx := xxx; xx 来使用xx
+func TestSwitchBranches(t *testing.T) {
+	fmt.Println("Go env")
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		fmt.Println("macOS.")
+	case "linux":
+		fmt.Println("Linux")
+	default:
+		fmt.Printf("%s.\n", os)
+	}
 }
