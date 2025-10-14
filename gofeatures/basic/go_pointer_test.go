@@ -66,3 +66,30 @@ func TestArraySlice(t *testing.T) {
 	fmt.Println(s1)
 	fmt.Println(s2)
 }
+
+func TestSliceBasic(t *testing.T) {
+	s := []int{2, 3, 4, 5, 6, 7}
+	printSlice(s)
+
+	// 清除所有内容
+	s = s[:0]
+	printSlice(s) // len=0，cap仍为6
+
+	// 拓展长度
+	s = s[:4]
+	printSlice(s) // len=4, cap仍为6
+
+	// 剔除前2个值, 也就是让slice从2开始
+	s = s[2:]
+	printSlice(s) // len=2，cap减少为4
+
+	// 这个时候如果我们回去, 也无法回去, 开始位置仍然从4开始, 所以cap也不会变大
+	// 所以在进行slice的裁剪操作时, 尤其是没有记录array的引用, 是有可能丢失数据
+	// 虽然仍存在mem中，但go并没有提供方法直接访问
+	s = s[0:]
+	printSlice(s) // Still len=2, cap=4, [4, 5]
+}
+
+func printSlice(s []int) {
+	fmt.Printf("len=%d, cap=%d, %v\n", len(s), cap(s), s)
+}
