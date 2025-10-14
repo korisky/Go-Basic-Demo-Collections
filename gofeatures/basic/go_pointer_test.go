@@ -41,3 +41,28 @@ func TestStructWithPointer(t *testing.T) {
 	fmt.Println((*p).X)
 	fmt.Println(p.X)
 }
+
+// TestArraySlice 区分数组(固定)与切片(动态)
+func TestArraySlice(t *testing.T) {
+	arr := [6]int{1, 2, 3, 4, 5}
+	s1 := arr[0:3]
+	s2 := arr[2:]
+	fmt.Println(arr)
+	fmt.Println(s1)
+	fmt.Println(s2)
+	fmt.Println()
+
+	// arr变化对于切片的影响
+	arr[2] = 100
+	fmt.Println(arr)
+	fmt.Println(s1)
+	fmt.Println(s2)
+	fmt.Println()
+
+	// 不管是修改原来的arr, 还是只修改slice
+	// 都意味着在原arr进行了修改，所有相关的都生效
+	s1[2] = 98
+	fmt.Println(arr)
+	fmt.Println(s1)
+	fmt.Println(s2)
+}
