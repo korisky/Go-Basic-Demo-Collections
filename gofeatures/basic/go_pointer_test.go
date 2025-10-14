@@ -26,3 +26,18 @@ func TestPointer(t *testing.T) {
 	fmt.Println(i) // 查看i的变化
 	fmt.Println(j) // 查看j的变化
 }
+
+type Vertex struct {
+	X int
+	Y int
+}
+
+func TestStructWithPointer(t *testing.T) {
+	v := Vertex{1, 2}
+	p := &v // p是指向v的指针
+	p.X = 1e9
+	fmt.Println(v)
+	// 可以发现, 当作指针*获取指向内容的属性X, 与直接p.X是一样的
+	fmt.Println((*p).X)
+	fmt.Println(p.X)
+}
