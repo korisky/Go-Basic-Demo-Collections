@@ -22,7 +22,7 @@ func split(sum int) (x, y int) {
 	return
 }
 
-// 常量的生命可以在后面+具体类型, 达到控制精度等效果
+// 常量的声明可以在后面+具体类型, 达到控制精度等效果
 const TheConst uint32 = 15
 
 // TestDefaultVals 展示不同类型默认值
