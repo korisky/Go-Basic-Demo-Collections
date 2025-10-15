@@ -112,3 +112,20 @@ func TestSliceMake(t *testing.T) {
 	printSlice(d)
 	printSlice(e)
 }
+
+func TestSliceAppend(t *testing.T) {
+	var s = make([]int, 2)
+	printSlice(s)
+
+	// append 添加的元素, 是会直接增长cap的
+	s = append(s, 0)
+	printSlice(s)
+
+	// 如果再次添加, cap当前充足, 那就不会增长
+	s = append(s, 1)
+	printSlice(s)
+
+	// 增长类似java-hashMap, 每次2被
+	s = append(s, 2, 3, 4, 5)
+	printSlice(s)
+}
