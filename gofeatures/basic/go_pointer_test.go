@@ -93,3 +93,22 @@ func TestSliceBasic(t *testing.T) {
 func printSlice(s []int) {
 	fmt.Printf("len=%d, cap=%d, %v\n", len(s), cap(s), s)
 }
+
+// TestSliceMake -> 容量始终是从切片的当前起始指针到底层数组(声明的/默认的)的末尾计算的
+// 1. 没有指定cap的情况， 默认cap=len
+// 2. 当没有arr的情况构建slice (e.g make([]int), 这样是声明slice所以没有arr)
+// 3. 当进行cut-slice的时候, 当前len就是cut出来的长度, 但cap取决于:
+// 3.1) 如果cut是从头开始, 那len是=cut出来长度, 但cap仍为原来大小
+// 3.2) 如果cut是中间开始, 那么len是=cut出来的长度, 但cap则是从开始位置到结束
+func TestSliceMake(t *testing.T) {
+	a := make([]int, 5)    // len(5), then cap default is 5
+	b := make([]int, 0, 5) // len(0), but cap need 5
+	c := b[:2]             // len(2), but cap still 5 !!!
+	d := c[2:5]            // len(3), but cap now 3 !!!
+	e := d[1:]             // len(2), cap(2)
+	printSlice(a)
+	printSlice(b)
+	printSlice(c)
+	printSlice(d)
+	printSlice(e)
+}
