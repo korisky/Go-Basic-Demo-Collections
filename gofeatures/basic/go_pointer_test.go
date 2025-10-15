@@ -125,7 +125,15 @@ func TestSliceAppend(t *testing.T) {
 	s = append(s, 1)
 	printSlice(s)
 
-	// 增长类似java-hashMap, 每次2被
-	s = append(s, 2, 3, 4, 5)
+	// 增长在<256时是x2的, 类似java的hashmap一样有factor
+	s = append(s, 2, 3, 4)
 	printSlice(s)
+
+	// slice的遍历
+	s = make([]int, 0)
+	for i := 0; i < 20; i++ {
+		s = append(s, i)
+		fmt.Printf("len=%d, cap=%d\n", len(s), cap(s))
+	}
+
 }
