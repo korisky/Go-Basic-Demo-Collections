@@ -31,6 +31,10 @@ func ScaleFunc(v *Vertex2, f float64) {
 	v.Y = v.Y * f
 }
 
+// TestTheFunc 关于使用指针传递/还是使用属性方法执行的考虑
+//  1. 单个struct操作内容, 那么直接作为属性方法更为合理
+//  2. 如果涉及多个struct, 并且需要保留操作结果, 传递地址使用指针修改值, 会更合适
+//     (但同样需要平衡性能与并发 -> 小内容直接拷贝更合理, 传递地址要避免并发同时操作)
 func TestTheFunc(t *testing.T) {
 	v := Vertex2{2, 3}
 	fmt.Println(v.Abs())
@@ -40,4 +44,6 @@ func TestTheFunc(t *testing.T) {
 	// 这样也能达到类似原Scale方法的结果, 对地址其上内容进行操作
 	ScaleFunc(&v, 10)
 	fmt.Println(v.Abs())
+	d := &v
+	fmt.Println(d.Y)
 }
