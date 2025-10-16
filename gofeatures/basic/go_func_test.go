@@ -24,9 +24,20 @@ func (v *Vertex2) Scale(f float64) {
 	v.Y = v.Y * f
 }
 
+// ScaleFunc 与Scale方法做一样的内容, 但是我们并不把它'挂'在Vertex才允许调用
+// 但这个时候, 就需要考虑清楚, 要将‘地址’作为接收param, 而不是普通的 Vertex2
+func ScaleFunc(v *Vertex2, f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
+}
+
 func TestTheFunc(t *testing.T) {
 	v := Vertex2{2, 3}
 	fmt.Println(v.Abs())
 	v.Scale(10)
+	fmt.Println(v.Abs())
+	// 非特定方法可调用, 我们将地址传过去, 确保func接收指针,
+	// 这样也能达到类似原Scale方法的结果, 对地址其上内容进行操作
+	ScaleFunc(&v, 10)
 	fmt.Println(v.Abs())
 }
