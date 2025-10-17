@@ -35,7 +35,7 @@ func (t T) K() {
 // 接口包含: v-值, T-struct
 func describe(i I) {
 	i.M()
-	//i.K()
+	i.K()
 	fmt.Printf("%v, %T\n", i, i)
 }
 
@@ -48,11 +48,32 @@ func TestInterfaceImpl(t *testing.T) {
 
 	// 对于空值
 	var i I
+	//describe(i) // 如果这里直接调用, 则会发生错误, 连赋值什么类型都没有, 接口是无法判断的
 	var tt *T
 	i = tt
+	describe(i)
 	i.M()
+	fmt.Println()
 
 	i = &T{"Hello"}
 	describe(i)
 	i.M()
+}
+
+func describeWithoutType(i interface{}) {
+	fmt.Printf("%v, %T\n", i, i)
+}
+
+// TestNilInterface 可以看出interface{}（也就是空接口）的强大
+// 由于是空接口, 也就是不需要进行任何实现，都能调用
+// 不管i进行什么赋值, 实际上都能接受
+func TestNilInterface(t *testing.T) {
+	var i interface{}
+	describeWithoutType(i)
+
+	i = 42
+	describeWithoutType(i)
+
+	i = "hello"
+	describeWithoutType(i)
 }
