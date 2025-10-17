@@ -16,7 +16,14 @@ type T struct {
 	S string
 }
 
-func (t T) M() {
+func (t *T) M() {
+	// 注意这里, 类似于我们的某个实例t是空 (仅初始化), 在Java的话可能近 Object o;这样, 直接NPE了
+	// 但对于Golang来说, 只要是这个类型, 你仍未有实例赋值也可以调用,
+	// 这个时候默认的初始化nil会传进来
+	if t == nil {
+		fmt.Println("got a <nil>")
+		return
+	}
 	fmt.Println(t.S)
 }
 
@@ -28,7 +35,7 @@ func (t T) K() {
 // 接口包含: v-值, T-struct
 func describe(i I) {
 	i.M()
-	i.K()
+	//i.K()
 	fmt.Printf("%v, %T\n", i, i)
 }
 
@@ -38,6 +45,14 @@ func TestInterfaceImpl(t *testing.T) {
 	// 所以对于Golang的接口来说，我们需要考虑2点:
 	// 1) 如果是每个接口通用, 不需要做修改, 我们写类似describe这样接收接口的的方法即可
 	// 2) 如果是每个接口调用, 各自有微调, 那就是写入接口中要实现的
-	var i I = T{"Hello"}
+
+	// 对于空值
+	var i I
+	var tt *T
+	i = tt
+	i.M()
+
+	i = &T{"Hello"}
 	describe(i)
+	i.M()
 }
