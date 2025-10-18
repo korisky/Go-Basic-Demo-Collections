@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -90,16 +91,21 @@ func runBenchMark(b *testing.B, counters Counters) {
 	}
 }
 
-// BenchmarkHasFalseSharing 不使用padding, 可以看出最大也就是到 24176
-func BenchmarkHasFalseSharing(b *testing.B) {
-	var counters CountersWithoutPadding
-	runBenchMark(b, &counters)
+// BenchmarkComparison benchmarking one-one comparison
+func BenchmarkComparison(b *testing.B) {
+	b.Run("NoPadding-FalseSharing", func(b *testing.B) {
+		var counters CountersWithoutPadding
+		runBenchMark(b, &counters)
+	})
+	fmt.Println()
+	b.Run("WithPadding-NoFalseSharing", func(b *testing.B) {
+		var counters CountersWithPadding
+		runBenchMark(b, &counters)
+	})
 }
 
-// BenchmarkHasNoFalseSharing 使用padding, 能到 55000, 接近not-padding的2倍
 func BenchmarkHasNoFalseSharing(b *testing.B) {
-	var counters CountersWithPadding
-	runBenchMark(b, &counters)
+
 }
 
 func TestMemLayout(t *testing.T) {
