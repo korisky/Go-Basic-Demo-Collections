@@ -8,6 +8,9 @@ import (
 	"unsafe"
 )
 
+// CacheLineSize 可以作为环境变量, 直接放入文件使用
+const CacheLineSize = 128
+
 // Counters interface -> better reuse later benchmark code
 type Counters interface {
 	RequestsPtr() *uint64
@@ -38,11 +41,11 @@ func (c *CountersWithoutPadding) LatencyPtr() *uint64 {
 // then it will not cause 'false-sharing', and result in a greater performance
 type CountersWithPadding struct {
 	requests uint64
-	_        [120]byte
+	_        [CacheLineSize - 8]byte
 	errors   uint64
-	_        [120]byte
+	_        [CacheLineSize - 8]byte
 	latency  uint64
-	_        [120]byte
+	_        [CacheLineSize - 8]byte
 }
 
 func (c *CountersWithPadding) RequestsPtr() *uint64 {
@@ -102,10 +105,6 @@ func BenchmarkComparison(b *testing.B) {
 		var counters CountersWithPadding
 		runBenchMark(b, &counters)
 	})
-}
-
-func BenchmarkHasNoFalseSharing(b *testing.B) {
-
 }
 
 func TestMemLayout(t *testing.T) {
