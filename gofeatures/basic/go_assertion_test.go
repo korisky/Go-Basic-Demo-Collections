@@ -22,3 +22,22 @@ func TestAssertion(t *testing.T) {
 	f = i.(float64)
 	fmt.Println(f)
 }
+
+// selectByType 空接口interface{} + select 判断类型
+// 可以做到用最泛的接口（因为不需要实现）, 然后重新回退到具体类型进行处理
+func selectByType(i interface{}) {
+	switch v := i.(type) {
+	case int:
+		fmt.Printf("Integer Detected: %v\n", v)
+	case string:
+		fmt.Printf("String Detected: %v\n", v)
+	default:
+		fmt.Printf("What type is it? %T\n", v)
+	}
+}
+
+func TestAssertionWithSelect(t *testing.T) {
+	selectByType(30)
+	selectByType("abc")
+	selectByType(true)
+}
