@@ -4,6 +4,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"unsafe"
 )
 
 // Counters interface -> better reuse later benchmark code
@@ -38,9 +39,9 @@ type CountersWithPadding struct {
 	requests uint64
 	_        [120]byte
 	errors   uint64
-	_        [128]byte
+	_        [120]byte
 	latency  uint64
-	_        [128]byte
+	_        [120]byte
 }
 
 func (c *CountersWithPadding) RequestsPtr() *uint64 {
@@ -95,7 +96,25 @@ func BenchmarkHasFalseSharing(b *testing.B) {
 	runBenchMark(b, &counters)
 }
 
+// BenchmarkHasNoFalseSharing 使用padding, 能到 55000, 接近not-padding的2倍
 func BenchmarkHasNoFalseSharing(b *testing.B) {
 	var counters CountersWithPadding
 	runBenchMark(b, &counters)
+}
+
+func TestMemLayout(t *testing.T) {
+	// size using show
+	unPaddedSize := unsafe.Sizeof(CountersWithoutPadding{})
+	paddedSize := unsafe.Sizeof(CountersWithPadding{})
+	t.Logf("CounterWithoutPadding size: %d bytes (all in 1 cache-line)", unPaddedSize)
+	t.Logf("CounterWithPadding size: %d bytes (3 separate cache-line)", paddedSize)
+
+	// size using check
+	if unPaddedSize >= 128 {
+		t.Errorf("CounterWithoutPadding too large: %d bytes (should be < 128, the CPU single core cache-line size)", paddedSize)
+	}
+	expectedPaddedSize := uint(128 * 3)
+	if paddedSize != uintptr(expectedPaddedSize) {
+		t.Errorf("CounterWithPadding size mis-match: got %d bytes, want %d", paddedSize, expectedPaddedSize)
+	}
 }
