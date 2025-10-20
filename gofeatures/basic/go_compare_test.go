@@ -5,7 +5,8 @@ import (
 	"testing"
 )
 
-// Index 用于进行查找
+// Index 用于进行查找, 与Java不同, golang中的默认类型是支持直接进行==比较, 这里比较的就是值
+// 但对于Golang中的ref类型 (map, slice, func, struct), 那还是需要实现Comparable接口
 func Index[T comparable](s []T, x T) int {
 	for i, v := range s {
 		// 找到则返回
