@@ -1,6 +1,9 @@
 package pref
 
-import "math/rand"
+import (
+	"math/rand"
+	"testing"
+)
 
 type Node struct {
 	Value int
@@ -16,7 +19,7 @@ func SumLinear(data []int) int {
 	return sum
 }
 
-func SunRandom(data []int, indices []int) int {
+func SumRandom(data []int, indices []int) int {
 	sum := 0
 	for _, idx := range indices {
 		// 由于我们是随意获取, cache miss
@@ -58,8 +61,6 @@ func expensiveOperation(node *Node) int {
 	return result
 }
 
-const dataSize = 1_000_000
-
 func setupLinearData() []int {
 	data := make([]int, dataSize)
 	for i := range data {
@@ -92,4 +93,42 @@ func setupNodes(n int) []*Node {
 		}
 	}
 	return nodes
+}
+
+const dataSize = 100_000_000
+
+// BenchmarkComparisonLinearAccess 当数量足够庞大时，可以发现linear会比random快一些
+func BenchmarkComparisonLinearAccess(b *testing.B) {
+	b.Run("LinearAccess", func(b *testing.B) {
+		data := setupLinearData()
+		b.ResetTimer()
+		for range b.N {
+			_ = SumLinear(data)
+		}
+	})
+	b.Run("RandomAccess", func(b *testing.B) {
+		data, indices := setupRandomAccess()
+		b.ResetTimer()
+		for range b.N {
+			_ = SumRandom(data, indices)
+		}
+	})
+}
+
+// BenchmarkComparisonPrefetch 当数量非常夸张时，可以发现prefetch效率远超过没有预加载的
+func BenchmarkComparisonPrefetch(b *testing.B) {
+	b.Run("WithoutPrefetch", func(b *testing.B) {
+		nodes := setupNodes(dataSize)
+		b.ResetTimer()
+		for range b.N {
+			_ = ProcessWithoutPrefetch(nodes)
+		}
+	})
+	b.Run("WithPrefetch", func(b *testing.B) {
+		nodes := setupNodes(dataSize)
+		b.ResetTimer()
+		for range b.N {
+			_ = ProcessWithPrefetch(nodes)
+		}
+	})
 }
