@@ -3,6 +3,7 @@ package pref
 import (
 	"fmt"
 	"sort"
+	"testing"
 )
 
 type User struct {
@@ -75,7 +76,7 @@ func GetUserDetailsSeparated(users []UserHot, id uint64) (*UserHot, *UserCold) {
 	return nil, nil
 }
 
-const numUsers = 10000
+const numUsers = 1000000
 
 func makeUserData(i int) (uint64, int, string, string, string, string) {
 	return uint64(i),
@@ -111,4 +112,41 @@ func setupSeparatedUsers() []UserHot {
 		}
 	}
 	return users
+}
+
+func BenchmarkComparisonHotCodeSeparation(b *testing.B) {
+
+	mixUsers := setupMixedUsers()
+	sepUsers := setupSeparatedUsers()
+
+	b.Run("Mixed-TopUsers", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			usersCopy := append([]User(nil), mixUsers...)
+			_ = TopUsersMixed(usersCopy, numUsers)
+		}
+	})
+
+	b.Run("Separated-TopUsers", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			usersCopy := append([]UserHot(nil), sepUsers...)
+			_ = TopUsersSeparated(usersCopy, numUsers)
+		}
+	})
+
+	b.Run("Mixed-GetDetails", func(b *testing.B) {
+		b.ResetTimer()
+		for i := range b.N {
+			_ = GetUserDetailsMixed(mixUsers, uint64(i%numUsers))
+		}
+	})
+
+	b.Run("Separated-GetDetails", func(b *testing.B) {
+		b.ResetTimer()
+		for i := range b.N {
+			_, _ = GetUserDetailsSeparated(sepUsers, uint64(i%numUsers))
+		}
+	})
+
 }
