@@ -6,13 +6,34 @@ import (
 	"testing"
 )
 
+// User struct足够大时, 拆分冷热数据就变得非常有必要
 type User struct {
 	ID      uint64 // hot field, 8 bytes
 	Score   int    // hot field, 8 bytes
-	Name    string
+	Name    string // cold field, 16bytes, headers(pointer8bytes + length8bytes) only
 	Email   string
 	Address string
 	Bio     string
+	extra1  string
+	extra2  string
+	extra3  string
+	extra4  string
+	extra5  string
+	extra6  string
+	extra7  string
+	extra8  string
+	extra9  string
+	extra10 string
+	extra11 string
+	extra12 string
+	extra13 string
+	extra14 string
+	extra15 string
+	extra16 string
+	extra17 string
+	extra18 string
+	extra19 string
+	extra20 string
 }
 
 // TopUsersMixed 获取排名前n的User的ID信息
@@ -47,10 +68,30 @@ type UserHot struct {
 }
 
 type UserCold struct {
-	Name    string
-	Email   string
+	Name    string // for string in golang, 8bytes of pointer, 8bytes about length
+	Email   string // so -> 16bytes per string in a struct
 	Address string
 	Bio     string
+	extra1  string
+	extra2  string
+	extra3  string
+	extra4  string
+	extra5  string
+	extra6  string
+	extra7  string
+	extra8  string
+	extra9  string
+	extra10 string
+	extra11 string
+	extra12 string
+	extra13 string
+	extra14 string
+	extra15 string
+	extra16 string
+	extra17 string
+	extra18 string
+	extra19 string
+	extra20 string
 }
 
 // TopUsersSeparated 由于直接操作热数据, 而每个struct包含的冷数据都不需要load到内存
@@ -76,29 +117,45 @@ func GetUserDetailsSeparated(users []UserHot, id uint64) (*UserHot, *UserCold) {
 	return nil, nil
 }
 
-const numUsers = 1000000
+const numUsers = 100000
 
-func makeUserData(i int) (uint64, int, string, string, string, string) {
+func makeUserData(i int) (uint64, int, string, string, string, string, string,
+	string, string, string, string, string, string, string, string, string,
+	string, string, string, string, string, string, string, string, string,
+	string) {
 	return uint64(i),
 		i % 10000,
 		fmt.Sprintf("User%d", i),
 		fmt.Sprintf("user%d@example.com", i),
 		fmt.Sprintf("%d Main Street", i),
-		fmt.Sprintf("Biometrix of user %d with text......", i)
+		fmt.Sprintf("Biometrix of user %d with text......", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i),
+		fmt.Sprintf("extra%d", i)
 }
 
 func setupMixedUsers() []User {
 	users := make([]User, numUsers)
 	for i := range users {
-		id, score, name, email, addr, bio := makeUserData(i)
-		users[i] = User{
-			ID:      id,
-			Score:   score,
-			Name:    name,
-			Email:   email,
-			Address: addr,
-			Bio:     bio,
-		}
+		id, score, name, email, addr, bio, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16, e17, e18, e19, e20 := makeUserData(i)
+		users[i] = User{id, score, name, email, addr, bio, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16, e17, e18, e19, e20}
 	}
 	return users
 }
@@ -106,14 +163,20 @@ func setupMixedUsers() []User {
 func setupSeparatedUsers() []UserHot {
 	users := make([]UserHot, numUsers)
 	for i := range users {
-		id, score, name, email, addr, bio := makeUserData(i)
+		id, score, name, email, addr, bio, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16, e17, e18, e19, e20 := makeUserData(i)
 		users[i] = UserHot{id, score,
-			&UserCold{name, email, addr, bio},
+			&UserCold{name, email, addr, bio, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16, e17, e18, e19, e20},
 		}
 	}
 	return users
 }
 
+// BenchmarkComparisonHotCodeSeparation 使用冷热分离的时候需要考虑
+//  1. 主要: struct的大小有多少, 当struct大致计算已经接近/超过 CPU的cache-line(m1pro-128bytes),
+//     使用冷热分离则非常有必要, 已经不care具体操作的数据量
+//  2. 次要: 当struct不是特别夸张, 但数据量非常离谱的时候, 那进行冷热分离则也有一定的bene
+//
+// 反例: 当struct也好操作的size也好都不是夸张的时候, 简单一个struct反而能更快
 func BenchmarkComparisonHotCodeSeparation(b *testing.B) {
 
 	mixUsers := setupMixedUsers()
