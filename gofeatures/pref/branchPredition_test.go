@@ -1,6 +1,9 @@
 package pref
 
-import "sort"
+import (
+	"math/rand"
+	"sort"
+)
 
 const theDataSize = 10000000
 
@@ -34,4 +37,19 @@ func CountConditionBranchless(data []int, threshold int) int {
 		count += int(uint(v-threshold-1)>>63) ^ 1
 	}
 	return count
+}
+
+func setupRandomData() []int {
+	data := make([]int, theDataSize)
+	r := rand.New(rand.NewSource(42))
+	for range data {
+		data[i] = r.Intn(256)
+	}
+	return data
+}
+
+func setupSortedData() []int {
+	data := setupRandomData()
+	sort.Ints(data)
+	return data
 }
