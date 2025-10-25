@@ -3,6 +3,7 @@ package pref
 import (
 	"math/rand"
 	"sort"
+	"testing"
 )
 
 const theDataSize = 10000000
@@ -42,7 +43,7 @@ func CountConditionBranchless(data []int, threshold int) int {
 func setupRandomData() []int {
 	data := make([]int, theDataSize)
 	r := rand.New(rand.NewSource(42))
-	for range data {
+	for i := range data {
 		data[i] = r.Intn(256)
 	}
 	return data
@@ -52,4 +53,35 @@ func setupSortedData() []int {
 	data := setupRandomData()
 	sort.Ints(data)
 	return data
+}
+
+func BenchmarkForBranchPrediction(b *testing.B) {
+	b.Run("Unpredictable-Random", func(b *testing.B) {
+		data := setupRandomData()
+		b.ResetTimer()
+		for range b.N {
+			_ = CountConditionRandom(data, 128)
+		}
+	})
+	b.Run("Predictable-PreSort", func(b *testing.B) {
+		data := setupSortedData()
+		b.ResetTimer()
+		for range b.N {
+			_ = CountConditionRandom(data, 128)
+		}
+	})
+	b.Run("Sorted-WithSortCost", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			data := setupRandomData()
+			_ = CountConditionSorted(data, 128)
+		}
+	})
+	b.Run("Branchless-General", func(b *testing.B) {
+		data := setupRandomData()
+		b.ResetTimer()
+		for range b.N {
+			_ = CountConditionBranchless(data, 128)
+		}
+	})
 }
