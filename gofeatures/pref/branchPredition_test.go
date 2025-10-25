@@ -70,6 +70,9 @@ func setupSortedData() []int {
 const theDataSize = 100000000
 const threshold = 512
 
+// BenchmarkForBranchPrediction ->
+// 1) 一般情况BranchLess/PreSorted都是比较好的方法, 只有数量非常离谱的情况, 才能展现Branchless特别有益
+// 2) CMOV由于使用到汇编的指令, 不同CPU下表现差异可能很大
 func BenchmarkForBranchPrediction(b *testing.B) {
 
 	randomData := setupRandomData()
