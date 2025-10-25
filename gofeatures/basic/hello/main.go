@@ -12,12 +12,17 @@ func main() {
 	// 设置合适的logger
 	slog.SetDefault(initLogger())
 
+	// slice of names
+	names := []string{"Roy", "Ben", "Henry"}
+
 	// predefined logger
-	msg, err := greetings.Hello("Jackson")
+	msg, err := greetings.Hellos(names)
 	if err != nil {
 		slog.Error("failed", err)
 	} else {
-		slog.Info(msg)
+		for _, v := range msg {
+			slog.Info(v)
+		}
 	}
 }
 
