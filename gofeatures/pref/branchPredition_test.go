@@ -28,6 +28,8 @@ func CountConditionSorted(data []int, threshold int) int {
 	return count
 }
 
+// CountConditionBranchless 时间复杂度O(n) -> 直接进行使用(不加Sort-> O(nlogn))
+// 对于非常大量的数据, 十分简单
 func CountConditionBranchless(data []int, threshold int) int {
 	count := 0
 	for _, v := range data {
@@ -40,6 +42,7 @@ func CountConditionBranchless(data []int, threshold int) int {
 }
 
 // CountConditionCMOV 使用到汇编中的CMOV指令进行处理
+// CMOV 在大批量数据情况下非常 不适合
 func CountConditionCMOV(data []int, threshold int) int {
 	count := 0
 	for _, v := range data {
