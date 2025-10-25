@@ -1,12 +1,11 @@
 package pref
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 	"testing"
 )
-
-const theDataSize = 10000000
 
 func CountConditionRandom(data []int, threshold int) int {
 	count := 0
@@ -40,11 +39,24 @@ func CountConditionBranchless(data []int, threshold int) int {
 	return count
 }
 
+// CountConditionCMOV 使用到汇编中的CMOV指令进行处理
+func CountConditionCMOV(data []int, threshold int) int {
+	count := 0
+	for _, v := range data {
+		increment := 0
+		if v > threshold {
+			increment = 1
+		}
+		count += increment
+	}
+	return count
+}
+
 func setupRandomData() []int {
 	data := make([]int, theDataSize)
 	r := rand.New(rand.NewSource(42))
 	for i := range data {
-		data[i] = r.Intn(256)
+		data[i] = r.Intn(1024)
 	}
 	return data
 }
@@ -55,33 +67,63 @@ func setupSortedData() []int {
 	return data
 }
 
+const theDataSize = 100000000
+const threshold = 512
+
 func BenchmarkForBranchPrediction(b *testing.B) {
+
+	randomData := setupRandomData()
+	sortedData := setupSortedData()
+
 	b.Run("Unpredictable-Random", func(b *testing.B) {
-		data := setupRandomData()
 		b.ResetTimer()
 		for range b.N {
-			_ = CountConditionRandom(data, 128)
+			_ = CountConditionRandom(randomData, threshold)
 		}
 	})
+	fmt.Println()
+
 	b.Run("Predictable-PreSort", func(b *testing.B) {
-		data := setupSortedData()
 		b.ResetTimer()
 		for range b.N {
-			_ = CountConditionRandom(data, 128)
+			_ = CountConditionRandom(sortedData, threshold)
 		}
 	})
+	fmt.Println()
+
 	b.Run("Sorted-WithSortCost", func(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
-			data := setupRandomData()
-			_ = CountConditionSorted(data, 128)
+			// with sort cost inner
+			data := append([]int(nil), randomData...)
+			sort.Ints(data)
+			_ = CountConditionSorted(data, threshold)
 		}
 	})
+	fmt.Println()
+
 	b.Run("Branchless-General", func(b *testing.B) {
 		data := setupRandomData()
 		b.ResetTimer()
 		for range b.N {
-			_ = CountConditionBranchless(data, 128)
+			_ = CountConditionBranchless(data, threshold)
+		}
+	})
+	fmt.Println()
+
+	b.Run("05-Branchless-Sorted", func(b *testing.B) {
+		// Show branchless is consistent regardless of data pattern
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			_ = CountConditionBranchless(sortedData, threshold)
+		}
+	})
+	fmt.Println()
+
+	b.Run("06-CMOV-Random", func(b *testing.B) {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			_ = CountConditionCMOV(randomData, threshold)
 		}
 	})
 }
