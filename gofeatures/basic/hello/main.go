@@ -13,7 +13,7 @@ func main() {
 	slog.SetDefault(initLogger())
 
 	// predefined logger
-	msg, err := greetings.Hello("")
+	msg, err := greetings.Hello("Jackson")
 	if err != nil {
 		slog.Error("failed", err)
 	} else {
