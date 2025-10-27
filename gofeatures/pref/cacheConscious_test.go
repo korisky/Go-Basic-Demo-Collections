@@ -40,5 +40,58 @@ func (m *RobinHoodMap) Put(key, value uint64) {
 	// liner probing
 	for {
 		b := &m.buckets[idx]
+
+		// empty slot -> insert directly
+		if !b.occupied {
+			*b = newBucket
+			b.distance = distance
+			m.size++
+			return
+		}
+
+		// key exists -> update val
+		if b.key == key {
+			b.value = value
+			return
+		}
+
+		// Robin Hood: if current bucket's distance < new val's distance
+		// swap it
+		if b.distance < distance {
+			newBucket, *b = *b, newBucket // golang can do this
+			distance = b.distance
+		}
+
+		// move to nextSlot -> linear probing
+		idx = (idx + 1) & m.mask
+		distance++
+	}
+}
+
+func (m *RobinHoodMap) Get(key uint64) (uint64, bool) {
+	idx := key & m.mask
+	distance := uint8(0)
+
+	// linear probing
+	for {
+		b := &m.buckets[idx]
+
+		// empty
+		if !b.occupied {
+			return 0, false
+		}
+
+		// found
+		if b.key == key {
+			return b.value, true
+		}
+
+		// Robin Hood Optimization: if current dis < search dis, must not exist
+		if b.distance < distance {
+			return 0, false
+		}
+
+		idx = (idx + 1) & m.mask
+		distance++
 	}
 }
