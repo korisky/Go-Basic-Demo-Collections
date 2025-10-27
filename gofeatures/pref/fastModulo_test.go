@@ -6,6 +6,10 @@ func modulo(key, capacity uint64) uint64 {
 	return key % capacity
 }
 
+// fastModulo 对于binary的操作而言, modulo = 仅保留低位的bits
+// 例如: number = (quotient × 2^k) + remainder
+// 42 % 16 = 10   42 = 0b00101010, 16 = 0b00010000, 16-1=15=0b00001111
+// 10 = 0b00001010 -> 42 & 15
 func fastModulo(key, capacity uint64) uint64 {
 	if capacity&(capacity-1) != 0 {
 		panic("capacity must be power of 2 for fast modulo")
