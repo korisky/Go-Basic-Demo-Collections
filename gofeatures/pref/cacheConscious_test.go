@@ -1,5 +1,10 @@
 package pref
 
+import (
+	"math/rand"
+	"testing"
+)
+
 // ~20 bytes per bucket
 type bucket struct {
 	key      uint64
@@ -94,4 +99,76 @@ func (m *RobinHoodMap) Get(key uint64) (uint64, bool) {
 		idx = (idx + 1) & m.mask
 		distance++
 	}
+}
+
+const (
+	mapSize    = 1000000
+	numLookups = 1000000
+)
+
+func setupGoMap() map[uint64]uint64 {
+	m := make(map[uint64]uint64, mapSize)
+	for i := uint64(0); i < mapSize; i++ {
+		m[i] = i * 2
+	}
+	return m
+}
+
+func setupRobinHoodMap() *RobinHoodMap {
+	m := NewRobinHoodMap(2 * mapSize)
+	for i := uint64(0); i < mapSize; i++ {
+		m.Put(i, i*2)
+
+	}
+	return m
+}
+
+func setupLookupKeys() []uint64 {
+	keys := make([]uint64, numLookups)
+	r := rand.New(rand.NewSource(42))
+	for i := range keys {
+		keys[i] = uint64(r.Intn(mapSize))
+	}
+	return keys
+}
+
+func BenchmarkComparisonOverMap(b *testing.B) {
+	b.Run("GoMap-Lookup", func(b *testing.B) {
+		m := setupGoMap()
+		k := setupLookupKeys()
+		b.ResetTimer()
+		for range b.N {
+			for _, key := range k {
+				_, _ = m[key]
+			}
+		}
+	})
+	b.Run("RobinHood-Lookup", func(b *testing.B) {
+		m := setupRobinHoodMap()
+		k := setupLookupKeys()
+		b.ResetTimer()
+		for range b.N {
+			for _, key := range k {
+				_, _ = m.Get(key)
+			}
+		}
+	})
+	b.Run("GoMap-Insert", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := make(map[uint64]uint64, mapSize)
+			for j := uint64(0); j < mapSize; j++ {
+				m[j] = j * 2
+			}
+		}
+	})
+	b.Run("RobinHood-Insert", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := NewRobinHoodMap(2 * mapSize)
+			for j := uint64(0); j < mapSize; j++ {
+				m.Put(j, j*2)
+			}
+		}
+	})
 }
