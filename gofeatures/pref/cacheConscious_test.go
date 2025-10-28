@@ -21,14 +21,26 @@ type RobinHoodMap struct {
 }
 
 func NewRobinHoodMap(capacity int) *RobinHoodMap {
-	if capacity&(capacity-1) != 0 {
-		panic("capacity must be power of 2")
-	}
+	power2Cap := nextPowerOf2(capacity * 2)
 	return &RobinHoodMap{
-		buckets:  make([]bucket, capacity),
-		mask:     uint64(capacity - 1),
-		capacity: capacity,
+		buckets:  make([]bucket, power2Cap),
+		mask:     uint64(power2Cap - 1),
+		capacity: power2Cap,
 	}
+}
+
+func nextPowerOf2(n int) int {
+	if n <= 0 {
+		return 1
+	}
+	if n&(n-1) == 0 {
+		return n
+	}
+	power := 1
+	for power < n {
+		power <<= 1
+	}
+	return power
 }
 
 func (m *RobinHoodMap) Put(key, value uint64) {
@@ -114,23 +126,8 @@ func setupGoMap() map[uint64]uint64 {
 	return m
 }
 
-func nextPowerOf2(n int) int {
-	if n <= 0 {
-		return 1
-	}
-	if n&(n-1) == 0 {
-		return n
-	}
-	power := 1
-	for power < n {
-		power <<= 1
-	}
-	return power
-}
-
 func setupRobinHoodMap() *RobinHoodMap {
-	capacity := nextPowerOf2(2 * mapSize)
-	m := NewRobinHoodMap(capacity)
+	m := NewRobinHoodMap(mapSize)
 	for i := uint64(0); i < mapSize; i++ {
 		m.Put(i, i*2)
 
@@ -180,7 +177,7 @@ func BenchmarkComparisonOverMap(b *testing.B) {
 	b.Run("RobinHood-Insert", func(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
-			m := NewRobinHoodMap(nextPowerOf2(2 * mapSize))
+			m := NewRobinHoodMap(mapSize)
 			for j := uint64(0); j < mapSize; j++ {
 				m.Put(j, j*2)
 			}
