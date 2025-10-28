@@ -144,6 +144,14 @@ func setupLookupKeys() []uint64 {
 	return keys
 }
 
+// BenchmarkComparisonOverMap 这里可以看出 RobinHood Map 对比 Map 实现性能非常夸张
+// 但为何 RobinHood Map 不是 Map 的默认实现呢？
+// 1) Key的限制, RobinHoodMap 限制了key一定是无符号整型
+// 2) RobinHoodMap 基本不支持delete(非常重的操作, resize同样）， 而下面的unitTest更多的insert & randomRead, 都RobinHoodMap的强项
+// 3) RobinHoodMap 对于loadFactor非常敏感, 过大(>90%)就能使得性能急剧下降, 所以已知大小的情况一般空间换时间要2x
+// 4) RobinHoodMap 不支持并发, 要使其支持并发也会增加很多overhead, 而go中原map实现通过shard分片, 使得并发成为可能
+// Rust语言的Map使用 RobinHoodMap ？
+// 2019之前Rust使用的就是 RobinHoodMap 实现的map, 随后改成Google的 SwissTable (SIMD lookup + easier delete/resize)
 func BenchmarkComparisonOverMap(b *testing.B) {
 	b.Run("GoMap-Lookup", func(b *testing.B) {
 		m := setupGoMap()
