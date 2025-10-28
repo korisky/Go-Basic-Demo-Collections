@@ -114,8 +114,23 @@ func setupGoMap() map[uint64]uint64 {
 	return m
 }
 
+func nextPowerOf2(n int) int {
+	if n <= 0 {
+		return 1
+	}
+	if n&(n-1) == 0 {
+		return n
+	}
+	power := 1
+	for power < n {
+		power <<= 1
+	}
+	return power
+}
+
 func setupRobinHoodMap() *RobinHoodMap {
-	m := NewRobinHoodMap(2 * mapSize)
+	capacity := nextPowerOf2(2 * mapSize)
+	m := NewRobinHoodMap(capacity)
 	for i := uint64(0); i < mapSize; i++ {
 		m.Put(i, i*2)
 
@@ -165,7 +180,7 @@ func BenchmarkComparisonOverMap(b *testing.B) {
 	b.Run("RobinHood-Insert", func(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
-			m := NewRobinHoodMap(2 * mapSize)
+			m := NewRobinHoodMap(nextPowerOf2(2 * mapSize))
 			for j := uint64(0); j < mapSize; j++ {
 				m.Put(j, j*2)
 			}
