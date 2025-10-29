@@ -123,6 +123,51 @@ func (m *RobinHoodMap) Get(key uint64) (uint64, bool) {
 	}
 }
 
+// Delete RobinHoodMap's weakness, due to backward shifting
+func (m *RobinHoodMap) Delete(key uint64) bool {
+	idx := key & m.mask
+	distance := uint8(0)
+
+	for {
+		b := &m.buckets[idx]
+
+		if !b.occupied {
+			return false
+		}
+
+		if b.key == key {
+			b.occupied = false
+			m.size--
+
+			prevIdx := idx
+			idx = (idx + 1) & m.mask
+
+			// backward shift following entries
+			for {
+				curr := &m.buckets[idx]
+				if !curr.occupied || distance == 0 {
+					break
+				}
+
+				m.buckets[prevIdx] = *curr
+				m.buckets[prevIdx].distance--
+				curr.occupied = false
+
+				prevIdx = idx
+				idx = (idx + 1) & m.mask
+			}
+			return true
+		}
+
+		if b.distance < distance {
+			return false
+		}
+
+		idx = (idx + 1) & m.mask
+		distance++
+	}
+}
+
 func setupGoMap() map[uint64]uint64 {
 	m := make(map[uint64]uint64, mapSize)
 	for i := uint64(0); i < mapSize; i++ {
@@ -246,6 +291,39 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 			m := swiss.NewMap[uint64, uint64](uint32(mapSize))
 			for j := uint64(0); j < mapSize; j++ {
 				m.Put(j, j*2)
+			}
+		}
+	})
+}
+
+func BenchmarkComparisonOverMap_Delete(b *testing.B) {
+	b.Run("GoMap-Delete", func(b *testing.B) {
+		for range b.N {
+			b.StopTimer()
+			m := setupGoMapForDelete()
+			b.StartTimer()
+			for j := uint64(0); j < deleteSize; j++ {
+				delete(m, j)
+			}
+		}
+	})
+	b.Run("RobinHood-Delete", func(b *testing.B) {
+		for range b.N {
+			b.StopTimer()
+			m := setupRobinHoodMapForDelete()
+			b.StartTimer()
+			for j := uint64(0); j < deleteSize; j++ {
+				m.Delete(j)
+			}
+		}
+	})
+	b.Run("SwissTable-Delete", func(b *testing.B) {
+		for range b.N {
+			b.StopTimer()
+			m := setupSwissMapForDelete()
+			b.StartTimer()
+			for j := uint64(0); j < deleteSize; j++ {
+				m.Delete(j)
 			}
 		}
 	})
