@@ -176,3 +176,38 @@ func BenchmarkComparisonOverMap_Delete(b *testing.B) {
 		}
 	})
 }
+
+func BenchmarkComparisonOverMap_Resize(b *testing.B) {
+	b.Run("GoMap-Resize", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := make(map[uint64]uint64)
+			for j := uint64(0); j < resizeTo; j++ {
+				m[j] = j * 2
+			}
+		}
+	})
+	b.Run("RobinHood-Resize", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := robinhood.NewRobinHoodMap(resizeFrom)
+			for j := uint64(0); j < resizeTo; j++ {
+				// 手动触发频繁Resize
+				m.Put(j, j*2)
+				if m.NeedsResize() {
+					m.Resize()
+				}
+			}
+		}
+	})
+	b.Run("SwissTable-Resize", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := swiss.NewMap[uint64, uint64](resizeFrom)
+			for j := uint64(0); j < resizeTo; j++ {
+				m.Put(j, j*2)
+			}
+		}
+	})
+
+}

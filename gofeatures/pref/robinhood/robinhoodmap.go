@@ -152,3 +152,22 @@ func (m *RobinHoodMap) Delete(key uint64) bool {
 		distance++
 	}
 }
+
+func (m *RobinHoodMap) NeedsResize() bool {
+	return float64(m.size) > float64(m.capacity)*0.7
+}
+
+func (m *RobinHoodMap) Resize() {
+	oldBuckets := m.buckets
+	newCap := m.capacity * 2
+
+	m.buckets = make([]bucket, newCap)
+	m.mask = uint64(newCap - 1)
+	m.size = 0
+
+	for _, b := range oldBuckets {
+		if b.occupied {
+			m.Put(b.key, b.value)
+		}
+	}
+}
