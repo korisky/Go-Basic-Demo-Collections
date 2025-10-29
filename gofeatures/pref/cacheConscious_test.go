@@ -3,6 +3,7 @@ package pref
 import (
 	"github.com/dolthub/swiss"
 	"math/rand"
+	"own/record/pref/robinhood"
 	"testing"
 )
 
@@ -15,159 +16,6 @@ const (
 	resizeTo   = 100000
 )
 
-// ~20 bytes per bucket
-type bucket struct {
-	key      uint64
-	value    uint64
-	distance uint8
-	occupied bool
-}
-
-type RobinHoodMap struct {
-	buckets  []bucket
-	mask     uint64
-	size     int
-	capacity int
-}
-
-func NewRobinHoodMap(capacity int) *RobinHoodMap {
-	power2Cap := nextPowerOf2(capacity * 2)
-	return &RobinHoodMap{
-		buckets:  make([]bucket, power2Cap),
-		mask:     uint64(power2Cap - 1),
-		capacity: power2Cap,
-	}
-}
-
-func nextPowerOf2(n int) int {
-	if n <= 0 {
-		return 1
-	}
-	if n&(n-1) == 0 {
-		return n
-	}
-	power := 1
-	for power < n {
-		power <<= 1
-	}
-	return power
-}
-
-func (m *RobinHoodMap) Put(key, value uint64) {
-	idx := key & m.mask
-	distance := uint8(0)
-
-	newBucket := bucket{
-		key:      key,
-		value:    value,
-		distance: 0,
-		occupied: true,
-	}
-
-	// liner probing
-	for {
-		b := &m.buckets[idx]
-
-		// empty slot -> insert directly
-		if !b.occupied {
-			*b = newBucket
-			b.distance = distance
-			m.size++
-			return
-		}
-
-		// key exists -> update val
-		if b.key == key {
-			b.value = value
-			return
-		}
-
-		// Robin Hood: if current bucket's distance < new val's distance
-		// swap it
-		if b.distance < distance {
-			newBucket, *b = *b, newBucket // golang can do this
-			distance = b.distance
-		}
-
-		// move to nextSlot -> linear probing
-		idx = (idx + 1) & m.mask
-		distance++
-	}
-}
-
-func (m *RobinHoodMap) Get(key uint64) (uint64, bool) {
-	idx := key & m.mask
-	distance := uint8(0)
-
-	// linear probing
-	for {
-		b := &m.buckets[idx]
-
-		// empty
-		if !b.occupied {
-			return 0, false
-		}
-
-		// found
-		if b.key == key {
-			return b.value, true
-		}
-
-		// Robin Hood Optimization: if current dis < search dis, must not exist
-		if b.distance < distance {
-			return 0, false
-		}
-
-		idx = (idx + 1) & m.mask
-		distance++
-	}
-}
-
-// Delete RobinHoodMap's weakness, due to backward shifting
-func (m *RobinHoodMap) Delete(key uint64) bool {
-	idx := key & m.mask
-	distance := uint8(0)
-
-	for {
-		b := &m.buckets[idx]
-
-		if !b.occupied {
-			return false
-		}
-
-		if b.key == key {
-			b.occupied = false
-			m.size--
-
-			prevIdx := idx
-			idx = (idx + 1) & m.mask
-
-			// backward shift following entries
-			for {
-				curr := &m.buckets[idx]
-				if !curr.occupied || distance == 0 {
-					break
-				}
-
-				m.buckets[prevIdx] = *curr
-				m.buckets[prevIdx].distance--
-				curr.occupied = false
-
-				prevIdx = idx
-				idx = (idx + 1) & m.mask
-			}
-			return true
-		}
-
-		if b.distance < distance {
-			return false
-		}
-
-		idx = (idx + 1) & m.mask
-		distance++
-	}
-}
-
 func setupGoMap() map[uint64]uint64 {
 	m := make(map[uint64]uint64, mapSize)
 	for i := uint64(0); i < mapSize; i++ {
@@ -176,8 +24,8 @@ func setupGoMap() map[uint64]uint64 {
 	return m
 }
 
-func setupRobinHoodMap() *RobinHoodMap {
-	m := NewRobinHoodMap(mapSize)
+func setupRobinHoodMap() *robinhood.RobinHoodMap {
+	m := robinhood.NewRobinHoodMap(mapSize)
 	for i := uint64(0); i < mapSize; i++ {
 		m.Put(i, i*2)
 	}
@@ -209,8 +57,8 @@ func setupGoMapForDelete() map[uint64]uint64 {
 	return m
 }
 
-func setupRobinHoodMapForDelete() *RobinHoodMap {
-	m := NewRobinHoodMap(deleteSize)
+func setupRobinHoodMapForDelete() *robinhood.RobinHoodMap {
+	m := robinhood.NewRobinHoodMap(deleteSize)
 	for i := uint64(0); i < deleteSize; i++ {
 		m.Put(i, i*2)
 	}
@@ -279,7 +127,7 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 	b.Run("RobinHood-Insert", func(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
-			m := NewRobinHoodMap(insertSize)
+			m := robinhood.NewRobinHoodMap(insertSize)
 			for j := uint64(0); j < mapSize; j++ {
 				m.Put(j, j*2)
 			}
