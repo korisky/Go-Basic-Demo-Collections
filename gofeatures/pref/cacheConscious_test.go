@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+const (
+	mapSize    = 1000000
+	numLookups = 1000000
+	deleteSize = 500000
+	insertSize = 500000
+	resizeFrom = 16
+	resizeTo   = 100000
+)
+
 // ~20 bytes per bucket
 type bucket struct {
 	key      uint64
@@ -114,14 +123,6 @@ func (m *RobinHoodMap) Get(key uint64) (uint64, bool) {
 	}
 }
 
-const (
-	mapSize    = 1000000
-	numLookups = 1000000
-	deleteSize = 500000
-	resizeFrom = 16
-	resizeTo   = 100000
-)
-
 func setupGoMap() map[uint64]uint64 {
 	m := make(map[uint64]uint64, mapSize)
 	for i := uint64(0); i < mapSize; i++ {
@@ -153,6 +154,30 @@ func setupLookupKeys() []uint64 {
 		keys[i] = uint64(r.Intn(mapSize))
 	}
 	return keys
+}
+
+func setupGoMapForDelete() map[uint64]uint64 {
+	m := make(map[uint64]uint64, deleteSize)
+	for i := uint64(0); i < deleteSize; i++ {
+		m[i] = i * 2
+	}
+	return m
+}
+
+func setupRobinHoodMapForDelete() *RobinHoodMap {
+	m := NewRobinHoodMap(deleteSize)
+	for i := uint64(0); i < deleteSize; i++ {
+		m.Put(i, i*2)
+	}
+	return m
+}
+
+func setupSwissMapForDelete() *swiss.Map[uint64, uint64] {
+	m := swiss.NewMap[uint64, uint64](uint32(deleteSize))
+	for i := uint64(0); i < deleteSize; i++ {
+		m.Put(i, i*2)
+	}
+	return m
 }
 
 // BenchmarkComparisonOverMap 这里可以看出 RobinHood Map 对比 Map 实现性能非常夸张
@@ -209,7 +234,16 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 	b.Run("RobinHood-Insert", func(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
-			m := NewRobinHoodMap(mapSize)
+			m := NewRobinHoodMap(insertSize)
+			for j := uint64(0); j < mapSize; j++ {
+				m.Put(j, j*2)
+			}
+		}
+	})
+	b.Run("SwissTable-Insert", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := swiss.NewMap[uint64, uint64](uint32(mapSize))
 			for j := uint64(0); j < mapSize; j++ {
 				m.Put(j, j*2)
 			}
