@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+/* go test -bench . cacheConscious_test.go for running all benchmarks ni this file */
+
 const (
 	mapSize    = 1000000
 	numLookups = 1000000
@@ -209,5 +211,45 @@ func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 			}
 		}
 	})
+}
 
+func BenchmarkComparisonOverMap_MIX(b *testing.B) {
+	const iterations = 10000
+
+	b.Run("GoMap-Mixed", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := make(map[uint64]uint64)
+			for j := uint64(0); j < iterations; j++ {
+				m[j] = j * 2
+				if j > 1000 {
+					delete(m, j-1000)
+				}
+			}
+		}
+	})
+	b.Run("RobinHood-Mixed", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := robinhood.NewRobinHoodMap(4096)
+			for j := uint64(0); j < iterations; j++ {
+				m.Put(j, j*2)
+				if j > 1000 {
+					m.Delete(j - 1000)
+				}
+			}
+		}
+	})
+	b.Run("SwissTable-Mixed", func(b *testing.B) {
+		b.ResetTimer()
+		for range b.N {
+			m := swiss.NewMap[uint64, uint64](4096)
+			for j := uint64(0); j < iterations; j++ {
+				m.Put(j, j*2)
+				if j > 1000 {
+					m.Delete(j - 1000)
+				}
+			}
+		}
+	})
 }
