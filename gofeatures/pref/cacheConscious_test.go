@@ -207,8 +207,10 @@ func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := make(map[uint64]uint64)
+			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < resizeTo; j++ {
-				m[j] = j * 2
+				key := uint64(r.Int63())
+				m[key] = j * 2
 			}
 		}
 	})
@@ -216,9 +218,11 @@ func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := robinhood.NewRobinHoodMap(resizeFrom)
+			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < resizeTo; j++ {
 				// 手动触发频繁Resize
-				m.Put(j, j*2)
+				key := uint64(r.Int63())
+				m.Put(key, j*2)
 				if m.NeedsResize() {
 					m.Resize()
 				}
@@ -229,8 +233,10 @@ func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := swiss.NewMap[uint64, uint64](resizeFrom)
+			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < resizeTo; j++ {
-				m.Put(j, j*2)
+				key := uint64(r.Int63())
+				m.Put(key, j*2)
 			}
 		}
 	})
@@ -244,8 +250,10 @@ func BenchmarkComparisonOverMap_MIX(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := make(map[uint64]uint64)
+			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < iterations; j++ {
-				m[j] = j * 2
+				key := uint64(r.Int63())
+				m[key] = j * 2
 				if j > 1000 {
 					delete(m, j-1000)
 				}
@@ -256,8 +264,10 @@ func BenchmarkComparisonOverMap_MIX(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := robinhood.NewRobinHoodMap(4096)
+			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < iterations; j++ {
-				m.Put(j, j*2)
+				key := uint64(r.Int63())
+				m.Put(key, j*2)
 				if j > 1000 {
 					m.Delete(j - 1000)
 				}
@@ -268,8 +278,10 @@ func BenchmarkComparisonOverMap_MIX(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := swiss.NewMap[uint64, uint64](4096)
+			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < iterations; j++ {
-				m.Put(j, j*2)
+				key := uint64(r.Int63())
+				m.Put(key, j*2)
 				if j > 1000 {
 					m.Delete(j - 1000)
 				}

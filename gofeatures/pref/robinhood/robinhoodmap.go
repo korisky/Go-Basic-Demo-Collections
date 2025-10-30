@@ -163,6 +163,7 @@ func (m *RobinHoodMap) Resize() {
 
 	m.buckets = make([]bucket, newCap)
 	m.mask = uint64(newCap - 1)
+	m.capacity = newCap
 	m.size = 0
 
 	for _, b := range oldBuckets {
