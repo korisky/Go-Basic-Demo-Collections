@@ -13,10 +13,10 @@ import (
 const (
 	mapSize    = 1000000
 	numLookups = 1000000
-	deleteSize = 500000
-	insertSize = 500000
+	deleteSize = 100000
+	insertSize = 1000000
 	resizeFrom = 16
-	resizeTo   = 100000
+	resizeTo   = 500000
 )
 
 func setupGoMap() map[uint64]uint64 {
@@ -41,6 +41,36 @@ func setupSwissMap() *swiss.Map[uint64, uint64] {
 		m.Put(i, i*2)
 	}
 	return m
+}
+
+func generateUniqueRandomKeys(n int, seed int64) []uint64 {
+	r := rand.New(rand.NewSource(seed))
+	keys := make([]uint64, n)
+	seen := make(map[uint64]bool, n)
+
+	for i := range n {
+		for {
+			key := uint64(r.Int63())
+			if !seen[key] {
+				keys[i] = key
+				seen[key] = true
+				break
+			}
+		}
+	}
+	return keys
+}
+
+func shuffleKeys(keys []uint64, seed int64) []uint64 {
+	shuffled := make([]uint64, len(keys))
+	copy(shuffled, keys)
+
+	r := rand.New(rand.NewSource(seed))
+	r.Shuffle(len(shuffled), func(i, j int) {
+		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+	})
+
+	return shuffled
 }
 
 func setupLookupKeys() []uint64 {
