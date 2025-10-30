@@ -1,6 +1,7 @@
 package pref
 
 import (
+	"fmt"
 	"github.com/dolthub/swiss"
 	"math/rand"
 	"own/record/pref/robinhood"
@@ -53,26 +54,42 @@ func setupLookupKeys() []uint64 {
 
 func setupGoMapForDelete() map[uint64]uint64 {
 	m := make(map[uint64]uint64, deleteSize)
+	r := rand.New(rand.NewSource(42))
 	for i := uint64(0); i < deleteSize; i++ {
-		m[i] = i * 2
+		key := uint64(r.Int63n(int64(deleteSize * 10)))
+		m[key] = i * 2
 	}
 	return m
 }
 
 func setupRobinHoodMapForDelete() *robinhood.RobinHoodMap {
 	m := robinhood.NewRobinHoodMap(deleteSize)
+	r := rand.New(rand.NewSource(42))
 	for i := uint64(0); i < deleteSize; i++ {
-		m.Put(i, i*2)
+		key := uint64(r.Int63n(int64(deleteSize * 10)))
+		m.Put(key, i*2)
 	}
 	return m
 }
 
 func setupSwissMapForDelete() *swiss.Map[uint64, uint64] {
 	m := swiss.NewMap[uint64, uint64](uint32(deleteSize))
+	r := rand.New(rand.NewSource(42))
 	for i := uint64(0); i < deleteSize; i++ {
-		m.Put(i, i*2)
+		key := uint64(r.Int63n(int64(deleteSize * 10)))
+		m.Put(key, i*2)
 	}
 	return m
+}
+
+// setupDeleteKeys 模拟随机删除
+func setupDeleteKeys() []uint64 {
+	keys := make([]uint64, deleteSize)
+	r := rand.New(rand.NewSource(42))
+	for i := range keys {
+		keys[i] = uint64(r.Int63n(int64(deleteSize * 10)))
+	}
+	return keys
 }
 
 // BenchmarkComparisonOverMap 这里可以看出 RobinHood Map 对比 Map 实现性能非常夸张
@@ -114,6 +131,7 @@ func BenchmarkComparisonOverMap_LookUp(b *testing.B) {
 			}
 		}
 	})
+	fmt.Println()
 }
 
 func BenchmarkComparisonOverMap_Insert(b *testing.B) {
@@ -144,16 +162,20 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 			}
 		}
 	})
+	fmt.Println()
 }
 
 func BenchmarkComparisonOverMap_Delete(b *testing.B) {
+	// Generate random keys
+	deleteKeys := setupDeleteKeys()
+
 	b.Run("GoMap-Delete", func(b *testing.B) {
 		for range b.N {
 			b.StopTimer()
 			m := setupGoMapForDelete()
 			b.StartTimer()
-			for j := uint64(0); j < deleteSize; j++ {
-				delete(m, j)
+			for _, key := range deleteKeys {
+				delete(m, key)
 			}
 		}
 	})
@@ -162,8 +184,8 @@ func BenchmarkComparisonOverMap_Delete(b *testing.B) {
 			b.StopTimer()
 			m := setupRobinHoodMapForDelete()
 			b.StartTimer()
-			for j := uint64(0); j < deleteSize; j++ {
-				m.Delete(j)
+			for _, key := range deleteKeys {
+				m.Delete(key)
 			}
 		}
 	})
@@ -172,11 +194,12 @@ func BenchmarkComparisonOverMap_Delete(b *testing.B) {
 			b.StopTimer()
 			m := setupSwissMapForDelete()
 			b.StartTimer()
-			for j := uint64(0); j < deleteSize; j++ {
-				m.Delete(j)
+			for _, key := range deleteKeys {
+				m.Delete(key)
 			}
 		}
 	})
+	fmt.Println()
 }
 
 func BenchmarkComparisonOverMap_Resize(b *testing.B) {
@@ -211,6 +234,7 @@ func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 			}
 		}
 	})
+	fmt.Println()
 }
 
 func BenchmarkComparisonOverMap_MIX(b *testing.B) {
@@ -252,4 +276,5 @@ func BenchmarkComparisonOverMap_MIX(b *testing.B) {
 			}
 		}
 	})
+	fmt.Println()
 }

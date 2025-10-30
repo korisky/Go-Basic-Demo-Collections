@@ -16,7 +16,7 @@ type RobinHoodMap struct {
 }
 
 func NewRobinHoodMap(capacity int) *RobinHoodMap {
-	power2Cap := nextPowerOf2(capacity * 2)
+	power2Cap := nextPowerOf2(int(float64(capacity) * 1.3))
 	return &RobinHoodMap{
 		buckets:  make([]bucket, power2Cap),
 		mask:     uint64(power2Cap - 1),
@@ -130,7 +130,7 @@ func (m *RobinHoodMap) Delete(key uint64) bool {
 			// backward shift following entries
 			for {
 				curr := &m.buckets[idx]
-				if !curr.occupied || distance == 0 {
+				if !curr.occupied || curr.distance == 0 {
 					break
 				}
 
