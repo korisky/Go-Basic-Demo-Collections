@@ -13,7 +13,7 @@ import (
 const (
 	mapSize    = 1000000
 	numLookups = 1000000
-	deleteSize = 250000
+	deleteSize = 200000
 	insertSize = 1000000
 	resizeFrom = 16
 	resizeTo   = 500000
@@ -92,10 +92,10 @@ func generateClusteredKeys(n int, seed int64) []uint64 {
 	clusterSize := 50
 	numClusters := (n + clusterSize - 1) / clusterSize
 
-	for cluster := 0; cluster < numClusters; clusterSize++ {
+	for cluster := 0; cluster < numClusters; cluster++ {
 		// random base for the cluster
 		base := uint64(r.Int63n(1000000)) << 20
-		for i := 0; i < clusterSize && cluster*cluster+i < n; i++ {
+		for i := 0; i < clusterSize && cluster*clusterSize+i < n; i++ {
 			// low bits create collisions
 			for {
 				// small offset for collisions
@@ -214,33 +214,33 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 }
 
 func BenchmarkComparisonOverMap_Delete(b *testing.B) {
+
+	goMap, goMapDeleteKeys := setupGoMapForDelete()
+	robinhoodMap, robinhoodDeleteKeys := setupRobinHoodMapForDelete()
+	swissMap, swissMapDeleteKeys := setupSwissMapForDelete()
+	fmt.Println("Preparation Finished --- Start Benchmarking")
+
 	b.Run("GoMap-Delete", func(b *testing.B) {
 		for range b.N {
-			b.StopTimer()
-			m, deleteKeys := setupGoMapForDelete()
-			b.StartTimer()
-			for _, key := range deleteKeys {
-				delete(m, key)
+			b.ResetTimer()
+			for _, key := range goMapDeleteKeys {
+				delete(goMap, key)
 			}
 		}
 	})
 	b.Run("RobinHood-Delete", func(b *testing.B) {
 		for range b.N {
-			b.StopTimer()
-			m, deleteKeys := setupRobinHoodMapForDelete()
-			b.StartTimer()
-			for _, key := range deleteKeys {
-				m.Delete(key)
+			b.ResetTimer()
+			for _, key := range robinhoodDeleteKeys {
+				robinhoodMap.Delete(key)
 			}
 		}
 	})
 	b.Run("SwissTable-Delete", func(b *testing.B) {
 		for range b.N {
-			b.StopTimer()
-			m, deleteKeys := setupSwissMapForDelete()
-			b.StartTimer()
-			for _, key := range deleteKeys {
-				m.Delete(key)
+			b.ResetTimer()
+			for _, key := range swissMapDeleteKeys {
+				swissMap.Delete(key)
 			}
 		}
 	})
