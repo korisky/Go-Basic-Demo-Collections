@@ -16,7 +16,7 @@ type RobinHoodMap struct {
 }
 
 func NewRobinHoodMap(capacity int) *RobinHoodMap {
-	power2Cap := nextPowerOf2(int(float64(capacity) * 1.3))
+	power2Cap := nextPowerOf2(int(float64(capacity) * 1.15))
 	return &RobinHoodMap{
 		buckets:  make([]bucket, power2Cap),
 		mask:     uint64(power2Cap - 1),

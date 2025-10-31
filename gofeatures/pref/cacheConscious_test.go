@@ -13,7 +13,7 @@ import (
 const (
 	mapSize    = 1000000
 	numLookups = 1000000
-	deleteSize = 100000
+	deleteSize = 200000
 	insertSize = 1000000
 	resizeFrom = 16
 	resizeTo   = 500000
