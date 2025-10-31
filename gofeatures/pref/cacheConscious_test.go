@@ -13,7 +13,7 @@ import (
 const (
 	mapSize    = 1000000
 	numLookups = 1000000
-	deleteSize = 200000
+	deleteSize = 250000
 	insertSize = 1000000
 	resizeFrom = 16
 	resizeTo   = 500000
@@ -82,8 +82,39 @@ func setupLookupKeys() []uint64 {
 	return keys
 }
 
+// generateClusteredKeys
+func generateClusteredKeys(n int, seed int64) []uint64 {
+	r := rand.New(rand.NewSource(seed))
+	keys := make([]uint64, n)
+	seen := make(map[uint64]bool, n)
+
+	// create clusters of keys that hash to nearby buckets
+	clusterSize := 50
+	numClusters := (n + clusterSize - 1) / clusterSize
+
+	for cluster := 0; cluster < numClusters; clusterSize++ {
+		// random base for the cluster
+		base := uint64(r.Int63n(1000000)) << 20
+		for i := 0; i < clusterSize && cluster*cluster+i < n; i++ {
+			// low bits create collisions
+			for {
+				// small offset for collisions
+				offset := uint64(r.Intn(256))
+				key := base | offset
+				if !seen[key] {
+					keys[cluster*clusterSize+i] = key
+					seen[key] = true
+					break
+				}
+			}
+		}
+	}
+	return keys
+}
+
 func setupGoMapForDelete() (map[uint64]uint64, []uint64) {
-	keys := generateUniqueRandomKeys(deleteSize, 42)
+	// keys := generateUniqueRandomKeys(deleteSize, 42)
+	keys := generateClusteredKeys(deleteSize, 42)
 	m := make(map[uint64]uint64, deleteSize)
 	for _, key := range keys {
 		m[key] = key * 2
@@ -92,7 +123,7 @@ func setupGoMapForDelete() (map[uint64]uint64, []uint64) {
 }
 
 func setupRobinHoodMapForDelete() (*robinhood.RobinHoodMap, []uint64) {
-	keys := generateUniqueRandomKeys(deleteSize, 42)
+	keys := generateClusteredKeys(deleteSize, 42)
 	m := robinhood.NewRobinHoodMap(deleteSize)
 	for _, key := range keys {
 		m.Put(key, key*2)
@@ -101,7 +132,7 @@ func setupRobinHoodMapForDelete() (*robinhood.RobinHoodMap, []uint64) {
 }
 
 func setupSwissMapForDelete() (*swiss.Map[uint64, uint64], []uint64) {
-	keys := generateUniqueRandomKeys(deleteSize, 42)
+	keys := generateClusteredKeys(deleteSize, 42)
 	m := swiss.NewMap[uint64, uint64](uint32(deleteSize))
 	for _, key := range keys {
 		m.Put(key, key*2)
@@ -221,37 +252,61 @@ func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := make(map[uint64]uint64)
-			r := rand.New(rand.NewSource(42))
-			for j := uint64(0); j < resizeTo; j++ {
-				key := uint64(r.Int63())
-				m[key] = j * 2
+
+			// use cluster keys
+			keys := generateClusteredKeys(resizeTo, 42)
+			for i, key := range keys {
+				m[key] = uint64(i * 2)
 			}
+
+			// use random
+			//r := rand.New(rand.NewSource(42))
+			//for j := uint64(0); j < resizeTo; j++ {
+			//	key := uint64(r.Int63())
+			//	m[key] = j * 2
+			//}
 		}
 	})
 	b.Run("RobinHood-Resize", func(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := robinhood.NewRobinHoodMap(resizeFrom)
-			r := rand.New(rand.NewSource(42))
-			for j := uint64(0); j < resizeTo; j++ {
-				// 手动触发频繁Resize
-				key := uint64(r.Int63())
-				m.Put(key, j*2)
+			// use cluster keys
+			keys := generateClusteredKeys(resizeTo, 42)
+			for i, key := range keys {
+				m.Put(key, uint64(i*2))
 				if m.NeedsResize() {
 					m.Resize()
 				}
 			}
+
+			//r := rand.New(rand.NewSource(42))
+			//for j := uint64(0); j < resizeTo; j++ {
+			//	// 手动触发频繁Resize
+			//	key := uint64(r.Int63())
+			//	m.Put(key, j*2)
+			//	if m.NeedsResize() {
+			//		m.Resize()
+			//	}
+			//}
 		}
 	})
 	b.Run("SwissTable-Resize", func(b *testing.B) {
 		b.ResetTimer()
 		for range b.N {
 			m := swiss.NewMap[uint64, uint64](resizeFrom)
-			r := rand.New(rand.NewSource(42))
-			for j := uint64(0); j < resizeTo; j++ {
-				key := uint64(r.Int63())
-				m.Put(key, j*2)
+			// use cluster keys
+			keys := generateClusteredKeys(resizeTo, 42)
+			for i, key := range keys {
+				m.Put(key, uint64(i*2))
 			}
+
+			// use random
+			//r := rand.New(rand.NewSource(42))
+			//for j := uint64(0); j < resizeTo; j++ {
+			//	key := uint64(r.Int63())
+			//	m.Put(key, j*2)
+			//}
 		}
 	})
 	fmt.Println()
