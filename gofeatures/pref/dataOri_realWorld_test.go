@@ -1,7 +1,9 @@
 package pref
 
 import (
+	"fmt"
 	"math/rand"
+	"testing"
 	"time"
 )
 
@@ -88,4 +90,30 @@ func genEventBatch(n int) *EventBatch {
 		batch.Values[i] = r.Float64() * 1000
 	}
 	return batch
+}
+
+func BenchmarkAnalyticsPipeline(b *testing.B) {
+	sizes := []int{1000, 10000, 100000}
+	for _, size := range sizes {
+		b.Run(fmt.Sprintf("OOP_%dk", size/1000), func(b *testing.B) {
+			events := genEvents(size)
+			b.ResetTimer()
+			b.ReportAllocs()
+			for range b.N {
+				ProcessEvents(events)
+			}
+			b.ReportMetric(float64(b.Elapsed().Nanoseconds())/float64(b.N*size), "ns/events")
+		})
+	}
+	for _, size := range sizes {
+		b.Run(fmt.Sprintf("DOD_%dk", size/1000), func(b *testing.B) {
+			events := genEventBatch(size)
+			b.ResetTimer()
+			b.ReportAllocs()
+			for range b.N {
+				ProcessEventsBatch(events)
+			}
+			b.ReportMetric(float64(b.Elapsed().Nanoseconds())/float64(b.N*size), "ns/events")
+		})
+	}
 }
