@@ -8,7 +8,33 @@ import (
 	"testing"
 )
 
-/* go test -bench . cacheConscious_test.go for running all benchmarks ni this file */
+/*
+
+go test -bench . cacheConscious_test.go for running all benchmarks ni this file
+goos: darwin
+goarch: arm64
+cpu: Apple M1 Pro
+BenchmarkComparisonOverMap_LookUp/GoMap-Lookup-10         	      33	  32769742 ns/op
+BenchmarkComparisonOverMap_LookUp/RobinHood-Lookup-10     	     237	   4985865 ns/op
+BenchmarkComparisonOverMap_LookUp/SwissTable-Lookup-10    	      34	  32843488 ns/op
+
+BenchmarkComparisonOverMap_Insert/GoMap-Insert-10         	      28	  37596682 ns/op
+BenchmarkComparisonOverMap_Insert/RobinHood-Insert-10     	     313	   3775438 ns/op
+BenchmarkComparisonOverMap_Insert/SwissTable-Insert-10    	      51	  22393824 ns/op
+
+BenchmarkComparisonOverMap_Delete/GoMap-Delete-10         	    1569	    761140 ns/op
+BenchmarkComparisonOverMap_Delete/RobinHood-Delete-10     	       2	 545446042 ns/op
+BenchmarkComparisonOverMap_Delete/SwissTable-Delete-10    	    2215	    537471 ns/op
+
+BenchmarkComparisonOverMap_Resize/GoMap-Resize-10         	     310	   3871764 ns/op
+BenchmarkComparisonOverMap_Resize/RobinHood-Resize-10     	       1	3891969792 ns/op
+BenchmarkComparisonOverMap_Resize/SwissTable-Resize-10    	     289	   4090436 ns/op
+
+BenchmarkComparisonOverMap_MIX/GoMap-Mixed-10             	    1792	    664811 ns/op
+BenchmarkComparisonOverMap_MIX/RobinHood-Mixed-10         	      37	  31386345 ns/op
+BenchmarkComparisonOverMap_MIX/SwissTable-Mixed-10        	    2366	    505296 ns/op
+
+*/
 
 const (
 	mapSize    = 1000000

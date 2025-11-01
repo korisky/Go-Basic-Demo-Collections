@@ -1,10 +1,10 @@
 package robinhood
 
-// ~20 bytes per bucket
+// ~24 bytes per bucket (increased from ~20 due to uint16 distance + padding)
 type bucket struct {
 	key      uint64
 	value    uint64
-	distance uint8
+	distance uint16
 	occupied bool
 }
 
@@ -40,7 +40,7 @@ func nextPowerOf2(n int) int {
 
 func (m *RobinHoodMap) Put(key, value uint64) {
 	idx := key & m.mask
-	distance := uint8(0)
+	distance := uint16(0)
 
 	newBucket := bucket{
 		key:      key,
@@ -71,7 +71,8 @@ func (m *RobinHoodMap) Put(key, value uint64) {
 		// swap it
 		if b.distance < distance {
 			newBucket, *b = *b, newBucket // golang can do this
-			distance = newBucket.distance
+			b.distance = distance         // Update distance for newly inserted element
+			distance = newBucket.distance // Continue with evicted element's distance
 		}
 
 		// move to nextSlot -> linear probing
@@ -82,7 +83,7 @@ func (m *RobinHoodMap) Put(key, value uint64) {
 
 func (m *RobinHoodMap) Get(key uint64) (uint64, bool) {
 	idx := key & m.mask
-	distance := uint8(0)
+	distance := uint16(0)
 
 	// linear probing
 	for {
@@ -111,7 +112,7 @@ func (m *RobinHoodMap) Get(key uint64) (uint64, bool) {
 // Delete RobinHoodMap's weakness, due to backward shifting
 func (m *RobinHoodMap) Delete(key uint64) bool {
 	idx := key & m.mask
-	distance := uint8(0)
+	distance := uint16(0)
 
 	for {
 		b := &m.buckets[idx]
@@ -173,4 +174,21 @@ func (m *RobinHoodMap) Resize() {
 			m.Put(b.key, b.value)
 		}
 	}
+}
+
+// Buckets are Diagnostic helpers for testing
+func (m *RobinHoodMap) Buckets() []bucket {
+	return m.buckets
+}
+
+func (m *RobinHoodMap) BucketAt(idx int) bucket {
+	return m.buckets[idx]
+}
+
+func (b bucket) Occupied() bool {
+	return b.occupied
+}
+
+func (b bucket) Distance() uint16 {
+	return b.distance
 }
