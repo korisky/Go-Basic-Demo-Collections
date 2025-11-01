@@ -1,6 +1,7 @@
 package pref
 
 import (
+	"math/rand"
 	"time"
 )
 
@@ -51,4 +52,40 @@ func ProcessEventsBatch(batch *EventBatch) {
 			updateRevene(batch.Values[i])
 		}
 	}
+}
+
+func genEvents(n int) []Event {
+	r := rand.New(rand.NewSource(42))
+	events := make([]Event, n)
+	actions := []string{"view", "click", "purchase", "share"}
+	for i := range n {
+		events[i] = Event{
+			Timestamp: time.Now().Add(time.Duration(i) * time.Second),
+			UserId:    r.Uint64(),
+			Action:    actions[r.Intn(len(actions))],
+			Value:     r.Float64() * 1000,
+			Tags: map[string]string{
+				"source":   "web",
+				"campaign": "summer_sale",
+			},
+		}
+	}
+	return events
+}
+
+func genEventBatch(n int) *EventBatch {
+	r := rand.New(rand.NewSource(42))
+	batch := &EventBatch{
+		Timestamps: make([]int64, n),
+		UserIds:    make([]uint64, n),
+		Actions:    make([]uint8, n),
+		Values:     make([]float64, n),
+	}
+	for i := range n {
+		batch.Timestamps[i] = time.Now().Add(time.Duration(i) * time.Second).Unix()
+		batch.UserIds[i] = r.Uint64()
+		batch.Actions[i] = uint8(r.Intn(4))
+		batch.Values[i] = r.Float64() * 1000
+	}
+	return batch
 }
