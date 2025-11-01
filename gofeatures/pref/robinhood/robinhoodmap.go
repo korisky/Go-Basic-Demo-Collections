@@ -71,7 +71,7 @@ func (m *RobinHoodMap) Put(key, value uint64) {
 		// swap it
 		if b.distance < distance {
 			newBucket, *b = *b, newBucket // golang can do this
-			distance = b.distance
+			distance = newBucket.distance
 		}
 
 		// move to nextSlot -> linear probing
@@ -131,6 +131,8 @@ func (m *RobinHoodMap) Delete(key uint64) bool {
 			for {
 				curr := &m.buckets[idx]
 				if !curr.occupied || curr.distance == 0 {
+					// mark last shifted position as unoccupied
+					m.buckets[prevIdx].occupied = false
 					break
 				}
 

@@ -13,10 +13,10 @@ import (
 const (
 	mapSize    = 1000000
 	numLookups = 1000000
-	deleteSize = 200000
+	deleteSize = 25000
 	insertSize = 1000000
 	resizeFrom = 16
-	resizeTo   = 500000
+	resizeTo   = 50000
 )
 
 func setupGoMap() map[uint64]uint64 {
@@ -214,33 +214,33 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 }
 
 func BenchmarkComparisonOverMap_Delete(b *testing.B) {
-
-	goMap, goMapDeleteKeys := setupGoMapForDelete()
-	robinhoodMap, robinhoodDeleteKeys := setupRobinHoodMapForDelete()
-	swissMap, swissMapDeleteKeys := setupSwissMapForDelete()
-	fmt.Println("Preparation Finished --- Start Benchmarking")
-
 	b.Run("GoMap-Delete", func(b *testing.B) {
 		for range b.N {
-			b.ResetTimer()
-			for _, key := range goMapDeleteKeys {
-				delete(goMap, key)
+			b.StopTimer()
+			m, deleteKeys := setupGoMapForDelete()
+			b.StartTimer()
+			for _, key := range deleteKeys {
+				delete(m, key)
 			}
 		}
 	})
 	b.Run("RobinHood-Delete", func(b *testing.B) {
 		for range b.N {
-			b.ResetTimer()
-			for _, key := range robinhoodDeleteKeys {
-				robinhoodMap.Delete(key)
+			b.StopTimer()
+			m, deleteKeys := setupRobinHoodMapForDelete()
+			b.StartTimer()
+			for _, key := range deleteKeys {
+				m.Delete(key)
 			}
 		}
 	})
 	b.Run("SwissTable-Delete", func(b *testing.B) {
 		for range b.N {
-			b.ResetTimer()
-			for _, key := range swissMapDeleteKeys {
-				swissMap.Delete(key)
+			b.StopTimer()
+			m, deleteKeys := setupSwissMapForDelete()
+			b.StartTimer()
+			for _, key := range deleteKeys {
+				m.Delete(key)
 			}
 		}
 	})
