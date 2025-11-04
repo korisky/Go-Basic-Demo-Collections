@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+// main: by using go-tool: go tool pprof cpu.prof
+// command: web -> get the graph of the whole calling logic & cache missed/not & time spending
 func main() {
 	f, err := os.Create("cpu.prof")
 	if err != nil {
