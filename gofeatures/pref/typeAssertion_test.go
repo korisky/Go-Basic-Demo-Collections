@@ -3,6 +3,7 @@ package pref
 import (
 	"fmt"
 	"sort"
+	"testing"
 )
 
 type Sequence []int
@@ -63,4 +64,21 @@ func (s SequenceSlow) String() string {
 		result += fmt.Sprint(v)
 	}
 	return result + "]"
+}
+
+func BenchmarkSequenceComparison(b *testing.B) {
+	b.Run("Slow", func(b *testing.B) {
+		s := SequenceSlow{5, 3, 8, 1, 9, 2, 7, 4, 6}
+		b.ResetTimer()
+		for range b.N {
+			_ = s.String()
+		}
+	})
+	b.Run("Normal", func(b *testing.B) {
+		s := Sequence{5, 3, 8, 1, 9, 2, 7, 4, 6}
+		b.ResetTimer()
+		for range b.N {
+			_ = s.String()
+		}
+	})
 }
