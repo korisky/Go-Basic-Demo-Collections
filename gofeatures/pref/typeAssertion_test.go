@@ -47,6 +47,15 @@ func (s Sequence) String() string {
 	return fmt.Sprint([]int(s))
 }
 
+// Not comment out -> causing compile issue
+// 重点在: print.go 的672行 -> case Stringer:
+//				handled = true
+//				defer p.catchPanic(p.arg, verb, "String")  <= 'safety net'
+//				p.fmtString(v.String(), verb)
+//				return
+//			}
+// 这里的 catchPanic 是作为保护网, 当出现OOM堆栈溢出等问题直接通过该方法拦截
+// 这里通过使用defer + catchPanic + recover来抓取异常, 一般lib才会这样使用
 //func (s SequenceBad) String() string {
 //	s = s.CopyBad()
 //	sort.Sort(s)
