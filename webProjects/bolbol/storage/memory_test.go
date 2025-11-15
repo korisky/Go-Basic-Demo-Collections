@@ -44,9 +44,11 @@ func testNewMemory(m Storage, t *testing.T) {
 
 func benchmarkMemory_PushAverage(m Storage, b *testing.B) {
 	ctx := context.Background()
-	for i := 0; i < b.N; i++ {
+	i := 0
+	for b.Loop() {
 		id := rand.Intn(1000)
 		_ = m.Push(ctx, id, entity.UnreadMessagesNotification{Count: i})
+		i++
 	}
 	b.StopTimer()
 	PrintMemUsage()
@@ -55,9 +57,11 @@ func benchmarkMemory_PushAverage(m Storage, b *testing.B) {
 func benchmarkMemory_PushNewItem(m Storage, b *testing.B) {
 	ctx := context.Background()
 	counter := 0
-	for i := 0; i < b.N; i++ {
+	i := 0
+	for b.Loop() {
 		_ = m.Push(ctx, i, entity.UnreadMessagesNotification{Count: i})
 		counter++
+		i++
 	}
 	b.StopTimer()
 	b.Log("for ", b.N, " notifications: ")

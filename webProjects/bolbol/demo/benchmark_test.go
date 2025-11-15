@@ -17,7 +17,7 @@ func BenchmarkArticle(b *testing.B) {
 	}}
 	a := serializer2.NewArticle(ma, 3)
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		a.ByID(context.Background(), 10)
 	}
 }
