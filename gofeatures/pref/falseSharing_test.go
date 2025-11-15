@@ -61,37 +61,72 @@ func (c *CountersWithPadding) LatencyPtr() *uint64 {
 }
 
 // runBenchMark create multiple workers to do benchmark
+// improvement -> 使用 b.Loop 而不是 b.N , 强制将构建goroutine的耗费部分在循环外，
+// 更准确的benchmark出我们写的func性能, 剔除了goroutine生成的耗时
 func runBenchMark(b *testing.B, counters Counters) {
 
 	var wg sync.WaitGroup
+	stop := make(chan struct{})
+
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
-		wg.Add(3)
-		go func() {
-			defer wg.Done()
+	// Spawn fixed workers ONCE
+	// 一次声明所有的worker要做的func
+	workers := []func(){
+		func() {
 			ptr := counters.RequestsPtr()
-			for range 1000 {
-				atomic.AddUint64(ptr, 1)
+			for {
+				select {
+				case <-stop:
+					return
+				default:
+					atomic.AddUint64(ptr, 1)
+				}
 			}
-		}()
-		go func() {
-			defer wg.Done()
+		},
+		func() {
 			etr := counters.ErrorPtr()
-			for range 1000 {
-				atomic.AddUint64(etr, 1)
+			for {
+				select {
+				case <-stop:
+					return
+				default:
+					atomic.AddUint64(etr, 1)
+				}
 			}
-		}()
-		go func() {
-			defer wg.Done()
+		},
+		func() {
 			ltr := counters.LatencyPtr()
-			for range 1000 {
-				atomic.AddUint64(ltr, 1)
+			for {
+				select {
+				case <-stop:
+					return
+				default:
+					atomic.AddUint64(ltr, 1)
+				}
 			}
-		}()
-
-		wg.Wait()
+		},
 	}
+
+	// 在这个地方统一分配go-routine
+	for _, w := range workers {
+		wg.Add(1)
+		// worker由于带有自己的func, 针对传入func作为处理内容
+		go func(fn func()) {
+			defer wg.Done()
+			fn()
+		}(w)
+	}
+
+	b.ResetTimer()
+
+	// 通过使用Loop, 也可以避免很多compiler-optimized内容, 更直接的验证func
+	for b.Loop() {
+
+	}
+
+	close(stop)
+	wg.Wait()
 }
 
 // BenchmarkComparison benchmarking one-one comparison
