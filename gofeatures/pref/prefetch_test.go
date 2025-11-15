@@ -101,15 +101,13 @@ const dataSize = 100_000_000
 func BenchmarkComparisonLinearAccess(b *testing.B) {
 	b.Run("LinearAccess", func(b *testing.B) {
 		data := setupLinearData()
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = SumLinear(data)
 		}
 	})
 	b.Run("RandomAccess", func(b *testing.B) {
 		data, indices := setupRandomAccess()
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = SumRandom(data, indices)
 		}
 	})
@@ -119,15 +117,13 @@ func BenchmarkComparisonLinearAccess(b *testing.B) {
 func BenchmarkComparisonPrefetch(b *testing.B) {
 	b.Run("WithoutPrefetch", func(b *testing.B) {
 		nodes := setupNodes(dataSize)
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = ProcessWithoutPrefetch(nodes)
 		}
 	})
 	b.Run("WithPrefetch", func(b *testing.B) {
 		nodes := setupNodes(dataSize)
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = ProcessWithPrefetch(nodes)
 		}
 	})

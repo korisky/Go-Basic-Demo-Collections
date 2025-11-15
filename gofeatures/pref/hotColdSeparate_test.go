@@ -183,32 +183,32 @@ func BenchmarkComparisonHotCodeSeparation(b *testing.B) {
 	sepUsers := setupSeparatedUsers()
 
 	b.Run("Mixed-TopUsers", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			usersCopy := append([]User(nil), mixUsers...)
 			_ = TopUsersMixed(usersCopy, numUsers)
 		}
 	})
 
 	b.Run("Separated-TopUsers", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			usersCopy := append([]UserHot(nil), sepUsers...)
 			_ = TopUsersSeparated(usersCopy, numUsers)
 		}
 	})
 
 	b.Run("Mixed-GetDetails", func(b *testing.B) {
-		b.ResetTimer()
-		for i := range b.N {
+		i := 0
+		for b.Loop() {
 			_ = GetUserDetailsMixed(mixUsers, uint64(i%numUsers))
+			i++
 		}
 	})
 
 	b.Run("Separated-GetDetails", func(b *testing.B) {
-		b.ResetTimer()
-		for i := range b.N {
+		i := 0
+		for b.Loop() {
 			_, _ = GetUserDetailsSeparated(sepUsers, uint64(i%numUsers))
+			i++
 		}
 	})
 
