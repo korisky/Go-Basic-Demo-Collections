@@ -8,7 +8,7 @@ import (
 	"unsafe"
 )
 
-// CacheLineSize 可以作为环境变量, 直接放入文件使用
+// CacheLineSize 可以作为环境变量, 直接放入文件使用, m1pro芯片是128Bytes
 const CacheLineSize = 128
 
 // Counters interface -> better reuse later benchmark code

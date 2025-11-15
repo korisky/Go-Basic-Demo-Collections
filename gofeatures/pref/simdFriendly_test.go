@@ -18,7 +18,7 @@ func AddVectorsUnAligned(a, b, result []Vec3Unaligned) {
 // 不同的cpu使用的SIMD拓展不同, bit长度不同, 需要根据CPU进行优化
 type Vec3Aligned struct {
 	X, Y, Z float32
-	_       float32 // padding for 16-byte alignment
+	_       [64 - 3*4]byte // padding for 16-byte alignment
 }
 
 func AddVectorsAligned(a, b, result []Vec3Aligned) {
@@ -29,7 +29,7 @@ func AddVectorsAligned(a, b, result []Vec3Aligned) {
 	}
 }
 
-const vectorCount = 10000
+const vectorCount = 10_000_000
 
 func BenchmarkAddVectorsComparison(b *testing.B) {
 	b.Run("SIMD-Unfriendly", func(b *testing.B) {
@@ -40,8 +40,7 @@ func BenchmarkAddVectorsComparison(b *testing.B) {
 			a[i] = Vec3Unaligned{float32(i), float32(i * 2), float32(i * 3)}
 			bb[i] = Vec3Unaligned{float32(i), float32(i), float32(i)}
 		}
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			AddVectorsUnAligned(a, bb, result)
 		}
 	})
@@ -53,8 +52,7 @@ func BenchmarkAddVectorsComparison(b *testing.B) {
 			a[i] = Vec3Aligned{X: float32(i), Y: float32(i * 2), Z: float32(i * 3)}
 			bb[i] = Vec3Aligned{X: float32(i), Y: float32(i), Z: float32(i)}
 		}
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			AddVectorsAligned(a, bb, result)
 		}
 	})
