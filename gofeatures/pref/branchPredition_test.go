@@ -82,24 +82,21 @@ func BenchmarkForBranchPrediction(b *testing.B) {
 	sortedData := setupSortedData()
 
 	b.Run("Unpredictable-Random", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = CountConditionRandom(randomData, threshold)
 		}
 	})
 	fmt.Println()
 
 	b.Run("Predictable-PreSort", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = CountConditionRandom(sortedData, threshold)
 		}
 	})
 	fmt.Println()
 
 	b.Run("Sorted-WithSortCost", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			// with sort cost inner
 			data := append([]int(nil), randomData...)
 			sort.Ints(data)
@@ -110,8 +107,7 @@ func BenchmarkForBranchPrediction(b *testing.B) {
 
 	b.Run("Branchless-General", func(b *testing.B) {
 		data := setupRandomData()
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = CountConditionBranchless(data, threshold)
 		}
 	})
@@ -119,16 +115,14 @@ func BenchmarkForBranchPrediction(b *testing.B) {
 
 	b.Run("05-Branchless-Sorted", func(b *testing.B) {
 		// Show branchless is consistent regardless of data pattern
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = CountConditionBranchless(sortedData, threshold)
 		}
 	})
 	fmt.Println()
 
 	b.Run("06-CMOV-Random", func(b *testing.B) {
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = CountConditionCMOV(randomData, threshold)
 		}
 	})

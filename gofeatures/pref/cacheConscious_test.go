@@ -182,24 +182,21 @@ func BenchmarkComparisonOverMap_LookUp(b *testing.B) {
 	keys := setupLookupKeys()
 
 	b.Run("GoMap-Lookup", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			for _, key := range keys {
 				_, _ = goMap[key]
 			}
 		}
 	})
 	b.Run("RobinHood-Lookup", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			for _, key := range keys {
 				_, _ = robinMap.Get(key)
 			}
 		}
 	})
 	b.Run("SwissTable-Lookup", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			for _, key := range keys {
 				_, _ = swissMap.Get(key)
 			}
@@ -210,8 +207,7 @@ func BenchmarkComparisonOverMap_LookUp(b *testing.B) {
 
 func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 	b.Run("GoMap-Insert", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := make(map[uint64]uint64, mapSize)
 			for j := uint64(0); j < mapSize; j++ {
 				m[j] = j * 2
@@ -219,8 +215,7 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 		}
 	})
 	b.Run("RobinHood-Insert", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := robinhood.NewRobinHoodMap(insertSize)
 			for j := uint64(0); j < mapSize; j++ {
 				m.Put(j, j*2)
@@ -228,8 +223,7 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 		}
 	})
 	b.Run("SwissTable-Insert", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := swiss.NewMap[uint64, uint64](uint32(mapSize))
 			for j := uint64(0); j < mapSize; j++ {
 				m.Put(j, j*2)
@@ -241,7 +235,7 @@ func BenchmarkComparisonOverMap_Insert(b *testing.B) {
 
 func BenchmarkComparisonOverMap_Delete(b *testing.B) {
 	b.Run("GoMap-Delete", func(b *testing.B) {
-		for range b.N {
+		for b.Loop() {
 			b.StopTimer()
 			m, deleteKeys := setupGoMapForDelete()
 			b.StartTimer()
@@ -251,7 +245,7 @@ func BenchmarkComparisonOverMap_Delete(b *testing.B) {
 		}
 	})
 	b.Run("RobinHood-Delete", func(b *testing.B) {
-		for range b.N {
+		for b.Loop() {
 			b.StopTimer()
 			m, deleteKeys := setupRobinHoodMapForDelete()
 			b.StartTimer()
@@ -261,7 +255,7 @@ func BenchmarkComparisonOverMap_Delete(b *testing.B) {
 		}
 	})
 	b.Run("SwissTable-Delete", func(b *testing.B) {
-		for range b.N {
+		for b.Loop() {
 			b.StopTimer()
 			m, deleteKeys := setupSwissMapForDelete()
 			b.StartTimer()
@@ -275,8 +269,7 @@ func BenchmarkComparisonOverMap_Delete(b *testing.B) {
 
 func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 	b.Run("GoMap-Resize", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := make(map[uint64]uint64)
 
 			// use cluster keys
@@ -294,8 +287,7 @@ func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 		}
 	})
 	b.Run("RobinHood-Resize", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := robinhood.NewRobinHoodMap(resizeFrom)
 			// use cluster keys
 			keys := generateClusteredKeys(resizeTo, 42)
@@ -318,8 +310,7 @@ func BenchmarkComparisonOverMap_Resize(b *testing.B) {
 		}
 	})
 	b.Run("SwissTable-Resize", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := swiss.NewMap[uint64, uint64](resizeFrom)
 			// use cluster keys
 			keys := generateClusteredKeys(resizeTo, 42)
@@ -342,8 +333,7 @@ func BenchmarkComparisonOverMap_MIX(b *testing.B) {
 	const iterations = 10000
 
 	b.Run("GoMap-Mixed", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := make(map[uint64]uint64)
 			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < iterations; j++ {
@@ -356,8 +346,7 @@ func BenchmarkComparisonOverMap_MIX(b *testing.B) {
 		}
 	})
 	b.Run("RobinHood-Mixed", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := robinhood.NewRobinHoodMap(4096)
 			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < iterations; j++ {
@@ -370,8 +359,7 @@ func BenchmarkComparisonOverMap_MIX(b *testing.B) {
 		}
 	})
 	b.Run("SwissTable-Mixed", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			m := swiss.NewMap[uint64, uint64](4096)
 			r := rand.New(rand.NewSource(42))
 			for j := uint64(0); j < iterations; j++ {
