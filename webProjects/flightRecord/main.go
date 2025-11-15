@@ -85,6 +85,6 @@ func main() {
 	defer fr.Stop()
 
 	// start serving
-	http.HandleFunc("/", handler())
+	http.HandleFunc("/", handler(fr))
 	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }
