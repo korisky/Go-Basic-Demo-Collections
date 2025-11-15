@@ -99,7 +99,7 @@ func BenchmarkAnalyticsPipeline(b *testing.B) {
 			events := genEvents(size)
 			b.ResetTimer()
 			b.ReportAllocs()
-			for range b.N {
+			for b.Loop() {
 				ProcessEvents(events)
 			}
 			b.ReportMetric(float64(b.Elapsed().Nanoseconds())/float64(b.N*size), "ns/events")
@@ -110,7 +110,7 @@ func BenchmarkAnalyticsPipeline(b *testing.B) {
 			events := genEventBatch(size)
 			b.ResetTimer()
 			b.ReportAllocs()
-			for range b.N {
+			for b.Loop() {
 				ProcessEventsBatch(events)
 			}
 			b.ReportMetric(float64(b.Elapsed().Nanoseconds())/float64(b.N*size), "ns/events")

@@ -29,27 +29,27 @@ func BenchmarkModuloComparison(b *testing.B) {
 	}
 
 	b.Run("Modulo-SingleKey", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = modulo(key, capacity)
 		}
 	})
+	b.Run("Modulo-VaryingKeys", func(b *testing.B) {
+		i := 0
+		for b.Loop() {
+			_ = modulo(keys[i%len(keys)], capacity)
+			i++
+		}
+	})
 	b.Run("FastModulo-SingleKey", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			_ = fastModulo(key, capacity)
 		}
 	})
-	b.Run("Modulo-VaryingKeys", func(b *testing.B) {
-		b.ResetTimer()
-		for i := range b.N {
-			_ = modulo(keys[i%len(keys)], capacity)
-		}
-	})
 	b.Run("FastModulo-VaryingKeys", func(b *testing.B) {
-		b.ResetTimer()
-		for i := range b.N {
+		i := 0
+		for b.Loop() {
 			_ = fastModulo(keys[i%len(keys)], capacity)
+			i++
 		}
 	})
 }

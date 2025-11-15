@@ -82,14 +82,12 @@ const (
 func BenchmarkComparisonSoAAndAoS(b *testing.B) {
 	worlds, theWorld := initWorlds(numEntities)
 	b.Run("AoS", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			worlds.UpdatePositions(deltaTime)
 		}
 	})
 	b.Run("SoA", func(b *testing.B) {
-		b.ResetTimer()
-		for range b.N {
+		for b.Loop() {
 			theWorld.UpdatePositions(deltaTime)
 		}
 	})
