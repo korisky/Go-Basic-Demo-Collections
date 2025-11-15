@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"runtime/trace"
 	"sync"
 	"time"
@@ -17,7 +18,25 @@ func heavyLoad(w *sync.WaitGroup, iterations int32) {
 	time.Sleep(500 * time.Millisecond)
 }
 
-func handler() http.HandlerFunc {
+func writeTrace(fr *trace.FlightRecorder) error {
+	if !fr.Enabled() {
+		return fmt.Errorf("flight recorder not enabled")
+	}
+
+	// 创建文件写入流（记住要关）
+	file, err := os.Create("trace.out")
+	if err != nil {
+		return fmt.Errorf("fail to create recorder file")
+	}
+	defer file.Close()
+
+	// 将fileTrace写入文件
+	_, err = fr.WriteTo(file)
+	return err
+}
+
+func handler(fr *trace.FlightRecorder) http.HandlerFunc {
+	var traceWritten sync.Once
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		start := time.Now()
@@ -30,8 +49,16 @@ func handler() http.HandlerFunc {
 
 		wg.Wait()
 
-		consume := time.Since(start)
-		_, err := fmt.Fprintf(w, "worked for %f seconds", consume.Seconds())
+		// 计算执行时差，针对超过300ms的情况，进行单次的writeTrace
+		diff := time.Since(start)
+		if diff > 300*time.Millisecond {
+			traceWritten.Do(func() {
+				if err := writeTrace(fr); err != nil {
+					log.Printf("fail to write to trace: %v", err)
+				}
+			})
+		}
+		_, err := fmt.Fprintf(w, "worked for %f seconds", diff.Seconds())
 		if err != nil {
 			return
 		}
