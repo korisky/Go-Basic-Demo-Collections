@@ -62,11 +62,8 @@ func (c *CountersWithPadding) LatencyPtr() *uint64 {
 
 // runBenchMark create multiple workers to do benchmark
 func runBenchMark(b *testing.B, counters Counters) {
-
 	var wg sync.WaitGroup
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		wg.Add(3)
 		go func() {
 			defer wg.Done()
@@ -89,7 +86,6 @@ func runBenchMark(b *testing.B, counters Counters) {
 				atomic.AddUint64(ltr, 1)
 			}
 		}()
-
 		wg.Wait()
 	}
 }
