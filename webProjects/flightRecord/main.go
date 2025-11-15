@@ -28,7 +28,15 @@ func writeTrace(fr *trace.FlightRecorder) error {
 	if err != nil {
 		return fmt.Errorf("fail to create recorder file")
 	}
-	defer file.Close()
+	// 老的简单处理
+	//defer file.Close()
+
+	// 新版本的close等处理建议显式处理error
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("close file error: %v", err)
+		}
+	}()
 
 	// 将fileTrace写入文件
 	_, err = fr.WriteTo(file)
@@ -71,13 +79,13 @@ func handler(fr *trace.FlightRecorder) http.HandlerFunc {
 func main() {
 
 	// flight-record config, 记住MAXBytes永远为上限, 一旦达到则直接记录即使没有达到配置的MinAge¬
-	fr_cfg := trace.FlightRecorderConfig{
+	frCfg := trace.FlightRecorderConfig{
 		MinAge:   5 * time.Second, // 定义fc的窗口lower-bound
 		MaxBytes: 3 << 20,         // 3MB, 1 << 10: 1kb, 1 << 20 Mb, 1 << 30: 1Gb
 	}
 
 	// start flight-record
-	fr := trace.NewFlightRecorder(fr_cfg)
+	fr := trace.NewFlightRecorder(frCfg)
 	err := fr.Start()
 	if err != nil {
 		log.Fatalf("unalbe to start trace flight recorder: %v", err)
