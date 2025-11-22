@@ -11,7 +11,7 @@ type Employee struct {
 func main() {
 	// normal struct
 	employee := Employee{
-		name:     "Winston",
+		name:     "Tom",
 		age:      32,
 		isRemote: false,
 	}
@@ -26,4 +26,12 @@ func main() {
 		salary: 100_000,
 	}
 	fmt.Println("Job salary: ", job.salary)
+
+	// pointer -> ref of struct
+	employee.updateName("Winston")
+	fmt.Println("New name: ", employee.name)
+}
+
+func (e *Employee) updateName(newName string) {
+	e.name = newName
 }
