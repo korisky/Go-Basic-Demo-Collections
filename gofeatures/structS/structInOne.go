@@ -1,21 +1,24 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type Employee struct {
-	name     string
-	age      uint8
-	isRemote bool
+	Name     string `json:"name"`
+	Age      uint8  `json:"age"`
+	IsRemote bool   `json:"isRemote"`
 }
 
 func main() {
 	// normal struct
 	employee := Employee{
-		name:     "Tom",
-		age:      32,
-		isRemote: false,
+		Name:     "Tom",
+		Age:      32,
+		IsRemote: false,
 	}
-	fmt.Println("Employee name: ", employee.name)
+	fmt.Println("Employee name: ", employee.Name)
 
 	// anonymous struct
 	job := struct {
@@ -29,9 +32,13 @@ func main() {
 
 	// pointer -> ref of struct
 	employee.updateName("Winston")
-	fmt.Println("New name: ", employee.name)
+	fmt.Println("New name: ", employee.Name)
+
+	// json marshal
+	jsonStr, _ := json.Marshal(employee)
+	fmt.Println(string(jsonStr))
 }
 
 func (e *Employee) updateName(newName string) {
-	e.name = newName
+	e.Name = newName
 }
