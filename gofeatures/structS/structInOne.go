@@ -16,4 +16,14 @@ func main() {
 		isRemote: false,
 	}
 	fmt.Println("Employee name: ", employee.name)
+
+	// anonymous struct
+	job := struct {
+		title  string
+		salary uint32
+	}{
+		title:  "Manager",
+		salary: 100_000,
+	}
+	fmt.Println("Job salary: ", job.salary)
 }
