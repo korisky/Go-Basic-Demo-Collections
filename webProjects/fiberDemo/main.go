@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"os"
+	"runtime"
 )
 
 var (
@@ -24,6 +25,8 @@ func main() {
 }
 
 func init() {
-	fmt.Printf("\nVar part finished, home:%s\nuser:%s\ngopath:%s\n")
+	var numCPU = runtime.NumCPU()
+	fmt.Printf("\nVar part finished, home:%s\nuser:%s\ngopath:%s\nnumCpu:%d\n",
+		home, user, gopath, numCPU)
 	fmt.Println("\nNow get into init")
 }
